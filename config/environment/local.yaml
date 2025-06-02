@@ -1,0 +1,12 @@
+environment: "local"
+database:
+  name: "go_boilerplate"
+  host:
+    read: "db"
+    write: "db"
+  port: 3306
+  user: "go_boilerplate"
+  password: "go_boilerplate"
+  
+  
+  

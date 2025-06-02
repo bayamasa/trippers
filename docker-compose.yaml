@@ -1,0 +1,62 @@
+services:
+  backend:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - ENV=local
+      - ENV_CONFIG_PATH="./config/environment/"
+      - TZ=Asia/Tokyo
+      - DB_READ_HOST=db
+      - DB_WRITE_HOST=db
+      - DB_PORT=3306
+      - DB_NAME=go_boilerplate
+      - DB_USER=go_boilerplate
+      - DB_PASSWORD=go_boilerplate
+    ports:
+      - "8000:8080"
+    volumes:
+      - backend:/opt/data
+      - type: tmpfs
+        target: /opt/tmp
+        tmpfs:
+          size: 10000000
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app-network
+  db:
+    image: mysql:9.0.1
+    healthcheck:
+      test: ['CMD-SHELL', 'mysqladmin ping -h 127.0.0.1 --password="go_boilerplate" --silent']
+      interval: 3s
+      retries: 5
+      start_period: 30s
+    environment:
+      MYSQL_ROOT_PASSWORD: go_boilerplate
+      MYSQL_DATABASE: go_boilerplate
+      MYSQL_USER: go_boilerplate
+      MYSQL_PASSWORD: go_boilerplate
+    ports:
+      - "3306:3306"
+    secrets:
+      - db-password
+    volumes:
+      - db-data:/var/lib/mysql
+      - ./db/mysql/init:/docker-entrypoint-initdb.d
+      - ./db/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+    networks:
+      - app-network
+      
+volumes:
+  backend:
+  db-data:
+  
+secrets:
+  db-password:
+    file: db/mysql/db-password.txt
+
+networks:
+  app-network:
+    driver: bridge

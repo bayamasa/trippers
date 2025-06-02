@@ -1,2 +1,1 @@
-# trippers
-趣味で作ってる学習用旅行パッケージ購入のクローンサイト
+# go-boilerplate
