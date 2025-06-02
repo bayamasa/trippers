@@ -1,11 +1,11 @@
 services:
   backend:
     build: 
-      context: .
+      context: ../backend
       dockerfile: Dockerfile
     environment:
       - ENV=local
-      - ENV_CONFIG_PATH="./config/environment/"
+      - ENV_CONFIG_PATH="../backend/config/environment/"
       - TZ=Asia/Tokyo
       - DB_READ_HOST=db
       - DB_WRITE_HOST=db
@@ -44,8 +44,8 @@ services:
       - db-password
     volumes:
       - db-data:/var/lib/mysql
-      - ./db/mysql/init:/docker-entrypoint-initdb.d
-      - ./db/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+      - ../database/mysql/init:/docker-entrypoint-initdb.d
+      - ../database/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
     networks:
       - app-network
       
@@ -55,7 +55,7 @@ volumes:
   
 secrets:
   db-password:
-    file: db/mysql/db-password.txt
+    file: ../database/mysql/db-password.txt
 
 networks:
   app-network:

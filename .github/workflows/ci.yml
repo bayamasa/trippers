@@ -23,7 +23,7 @@ jobs:
 
     - name: Format Check
       run: |
-        unformatted_files=$(gofmt -l .)
+        unformatted_files=$(gofmt -l ./backend)
         if [ -n "$unformatted_files" ]; then
           echo "以下のファイルはフォーマットされていません。'go fmt'を実行してください："
           echo "$unformatted_files"
@@ -31,7 +31,7 @@ jobs:
         fi
 
     - name: Build
-      run: go build -v ./...
+      run: cd backend && go build -v ./...
 
     - name: Test
-      run: go test -v ./...
+      run: cd backend && go test -v ./...
