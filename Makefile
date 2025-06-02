@@ -5,12 +5,12 @@ help:
 
 .PHONY: fmt
 fmt: ## Run go fmt
-	go fmt ./...
+	cd backend && go fmt ./...
 
 .PHONY: up
 up: ## Run docker-compose up
-	docker compose up -d
+	docker compose -f infrastructure/docker-compose.yaml up -d
 	
 .PHONY: down
 down: ## Run docker-compose down
-	docker compose down
+	docker compose -f infrastructure/docker-compose.yaml down
