@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-ARG GO_VERSION=1.22.5
+ARG GO_VERSION=1.23.0
 FROM --platform=$BUILDPLATFORM golang:${GO_VERSION} AS base
 WORKDIR /src
 
