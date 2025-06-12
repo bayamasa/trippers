@@ -17,8 +17,10 @@ func NewMux(db *db.DB) http.Handler {
 
 	userRepository := infrastructure.NewMySQLUsersRepository(db)
 	fetchUserUseCase := application.NewFetchUsersUsecase(userRepository)
-	userController := controller.NewUserController(*fetchUserUseCase)
+	createUserUseCase := application.NewCreateUserUsecase(userRepository)
+	userController := controller.NewUserController(fetchUserUseCase, createUserUseCase)
 	mux.HandleFunc("GET /users/{id}", userController.GetUsers)
+	mux.HandleFunc("POST /users", userController.CreateUsers)
 
 	return mux
 }
