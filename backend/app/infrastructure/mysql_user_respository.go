@@ -51,3 +51,28 @@ func (r *MySQLUserRepository) FindBy(ctx context.Context, id int64) (*user.User,
 	}
 	return dbo.ToDomainModel(), nil
 }
+
+func (r *MySQLUserRepository) Create(ctx context.Context, user *user.User) error {
+	query := `
+	INSERT INTO users (
+		email,
+		last_name,
+		first_name,
+		gender,
+		date_of_birth,
+		location
+	) VALUES (?, ?, ?, ?, ?, ?)`
+
+	_, err := r.db.Write.ExecContext(ctx, query,
+		user.Email(),
+		user.LastName(),
+		user.FirstName(),
+		user.Gender(),
+		user.DateOfBirth(),
+		user.Location(),
+	)
+	if err != nil {
+		return fmt.Errorf("failed to create user: %w", err)
+	}
+	return nil
+}
