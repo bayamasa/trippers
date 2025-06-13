@@ -66,11 +66,11 @@ func TestUserController_CreateUsers(t *testing.T) {
 		controller.CreateUsers(w, req)
 
 		assert.Equal(t, http.StatusCreated, w.Code)
-		
+
 		var response map[string]string
 		json.Unmarshal(w.Body.Bytes(), &response)
 		assert.Equal(t, "created", response["status"])
-		
+
 		mockRepo.AssertExpectations(t)
 	})
 

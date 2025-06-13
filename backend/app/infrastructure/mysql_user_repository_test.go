@@ -45,7 +45,7 @@ func TestMySQLUserRepository_Create(t *testing.T) {
 		date_of_birth,
 		location
 	\) VALUES \(\?, \?, \?, \?, \?, \?\)`
-		
+
 		mock.ExpectExec(query).
 			WithArgs(
 				testUser.Email(),
@@ -71,7 +71,7 @@ func TestMySQLUserRepository_Create(t *testing.T) {
 		date_of_birth,
 		location
 	\) VALUES \(\?, \?, \?, \?, \?, \?\)`
-		
+
 		mock.ExpectExec(query).
 			WithArgs(
 				testUser.Email(),
