@@ -8,7 +8,7 @@ export function HeroSection() {
     <section className="relative flex h-[600px] items-center justify-center overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-primary/20 to-secondary/20" />
       <Image
-        src="/beautiful-tropical-beach-paradise-with-palm-trees.jpg"
+        src="/beautiful-tropical-beach-paradise-with-palm-trees.svg"
         alt="Hero background"
         fill
         className="object-cover"
