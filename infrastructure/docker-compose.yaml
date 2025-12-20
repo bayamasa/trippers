@@ -1,18 +1,18 @@
 services:
   backend:
     build: 
-      context: ../backend
+      context: ../backend/microservices
       dockerfile: Dockerfile
     environment:
       - ENV=local
-      - ENV_CONFIG_PATH="../backend/config/environment/"
+      - ENV_CONFIG_PATH="../backend/microservices/config/environment/"
       - TZ=Asia/Tokyo
       - DB_READ_HOST=db
       - DB_WRITE_HOST=db
-      - DB_PORT=3306
-      - DB_NAME=go_boilerplate
-      - DB_USER=go_boilerplate
-      - DB_PASSWORD=go_boilerplate
+      - DB_PORT=5432
+      - DB_NAME=trippers
+      - DB_USER=trippers
+      - DB_PASSWORD=trippers
     ports:
       - "8000:8080"
     volumes:
@@ -27,35 +27,27 @@ services:
     networks:
       - app-network
   db:
-    image: mysql:9.0.1
+    image: postgres:17.2
     healthcheck:
-      test: ['CMD-SHELL', 'mysqladmin ping -h 127.0.0.1 --password="go_boilerplate" --silent']
+      test: ['CMD-SHELL', 'pg_isready -U trippers -d trippers']
       interval: 3s
       retries: 5
       start_period: 30s
     environment:
-      MYSQL_ROOT_PASSWORD: go_boilerplate
-      MYSQL_DATABASE: go_boilerplate
-      MYSQL_USER: go_boilerplate
-      MYSQL_PASSWORD: go_boilerplate
+      POSTGRES_USER: trippers
+      POSTGRES_PASSWORD: trippers
+      POSTGRES_DB: trippers
     ports:
-      - "3306:3306"
-    secrets:
-      - db-password
+      - "5432:5432"
     volumes:
-      - db-data:/var/lib/mysql
-      - ../database/mysql/init:/docker-entrypoint-initdb.d
-      - ../database/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+      - db-data:/var/lib/postgresql/data
+      - ../database/postgres/init:/docker-entrypoint-initdb.d
     networks:
       - app-network
       
 volumes:
   backend:
   db-data:
-  
-secrets:
-  db-password:
-    file: ../database/mysql/db-password.txt
 
 networks:
   app-network:

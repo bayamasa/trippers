@@ -4,7 +4,7 @@ database:
   host:
     read: "db"
     write: "db"
-  port: 3306
+  port: 5432
   user: "trippers"
   password: "trippers"
   

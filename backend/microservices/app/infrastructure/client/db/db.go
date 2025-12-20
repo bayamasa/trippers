@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/bayamasa/go-boilerplate/config"
-	"github.com/go-sql-driver/mysql"
+	_ "github.com/lib/pq"
 )
 
 const pingTimeout = 2 * time.Second
@@ -19,7 +19,7 @@ type DB struct {
 }
 
 func NewDB(c *config.Config) (*DB, error) {
-	driverName := "mysql"
+	driverName := "postgres"
 
 	read, err := sql.Open(driverName, buildDSN(c))
 	if err != nil {
@@ -38,16 +38,13 @@ func NewDB(c *config.Config) (*DB, error) {
 }
 
 func buildDSN(c *config.Config) string {
-	dsn := &mysql.Config{
-		DBName:    c.Database.Name,
-		User:      c.Database.User,
-		Passwd:    c.Database.Password,
-		Addr:      c.Database.Host.Read + ":" + c.Database.Port,
-		Net:       "tcp",
-		ParseTime: true,
-		Loc:       time.Local,
-	}
-	return dsn.FormatDSN()
+	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		c.Database.Host.Read,
+		c.Database.Port,
+		c.Database.User,
+		c.Database.Password,
+		c.Database.Name,
+	)
 }
 
 func (d *DB) Close() {
