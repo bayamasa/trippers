@@ -4,7 +4,7 @@ import Link from 'next/link'
 export function Footer() {
   return (
     <footer className="border-t bg-muted/50">
-      <div className="container py-12 md:py-16">
+      <div className="container mx-auto py-12 md:py-16">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           <div>
             <Link href="/" className="mb-4 flex items-center gap-2">
@@ -160,10 +160,10 @@ export function Footer() {
             </ul>
           </div>
         </div>
+      </div>
 
-        <div className="mt-12 border-t pt-8 text-center text-muted-foreground text-sm">
-          <p>© 2025 TravelExplore. All rights reserved.</p>
-        </div>
+      <div className="border-t pt-8 text-center text-muted-foreground text-sm">
+        <p>© 2025 TravelExplore. All rights reserved.</p>
       </div>
     </footer>
   )
