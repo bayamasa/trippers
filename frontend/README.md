@@ -1,15 +1,50 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+## セットアップ
 
-First, run the development server:
+### 依存関係のインストール
 
 ```bash
+pnpm install
+# or
+npm install
+# or
+yarn install
+# or
+bun install
+```
+
+### 環境変数の設定
+
+`.env.local` ファイルをプロジェクトルートに作成し、以下の内容を追加してください：
+
+```env
+DATABASE_URL=postgresql://trippers:trippers@localhost:5432/trippers
+```
+
+### データベースマイグレーション
+
+スキーマをデータベースに適用するには：
+
+```bash
+# 直接データベースに適用（開発環境推奨）
+pnpm run db:push
+
+# または、マイグレーションファイルを生成して適用
+pnpm run db:generate
+pnpm run db:migrate
+```
+
+## Getting Started
+
+開発サーバーを起動：
+
+```bash
+pnpm dev
+# or
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
 # or
 bun dev
 ```

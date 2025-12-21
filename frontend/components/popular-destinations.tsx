@@ -1,51 +1,75 @@
 import { DestinationCard } from './destination-card'
+import { db } from '@/src/db'
+import { destinationsTable } from '@/src/db/schema'
 
-const destinations = [
-  {
-    name: 'バリ島',
+// デフォルトのロケーション、レーティング、価格のマッピング
+const destinationDefaults: Record<
+  string,
+  { location: string; rating: number; price: string; image: string }
+> = {
+  'バリ島': {
     location: 'インドネシア',
-    image: '/bali-beach-sunset.png',
     rating: 4.8,
     price: '¥89,000~',
+    image: 'bali-beach-sunset.png',
   },
-  {
-    name: 'パリ',
+  'パリ': {
     location: 'フランス',
-    image: '/eiffel-tower-paris.png',
     rating: 4.9,
     price: '¥125,000~',
+    image: 'eiffel-tower-paris.png',
   },
-  {
-    name: 'モルディブ',
+  'モルディブ': {
     location: 'インド洋',
-    image: '/maldives-overwater-bungalows.png',
     rating: 4.9,
     price: '¥180,000~',
+    image: 'maldives-overwater-bungalows.png',
   },
-  {
-    name: '京都',
+  '京都': {
     location: '日本',
-    image: '/kyoto-temple-cherry-blossoms.png',
     rating: 4.7,
     price: '¥45,000~',
+    image: 'kyoto-temple-cherry-blossoms.png',
   },
-  {
-    name: 'サントリーニ',
+  'サントリーニ': {
     location: 'ギリシャ',
-    image: '/santorini-white-blue.png',
     rating: 4.8,
     price: '¥150,000~',
+    image: 'santorini-white-blue.png',
   },
-  {
-    name: 'ドバイ',
+  'ドバイ': {
     location: 'アラブ首長国連邦',
-    image: '/dubai-burj-khalifa-skyline.jpg',
     rating: 4.6,
     price: '¥110,000~',
+    image: 'dubai-burj-khalifa-skyline.jpg',
   },
-]
+}
 
-export function PopularDestinations() {
+// フォールバック用のデフォルトデータ
+const fallbackDestinations = Object.entries(destinationDefaults).map(
+  ([name, data], index) => ({
+    id: index + 1,
+    name,
+    imageFilename: data.image,
+    createdAt: new Date(),
+  })
+)
+
+export async function PopularDestinations() {
+  // RSCでデータベースからデータを取得
+  let destinations
+  try {
+    destinations = await db.select().from(destinationsTable)
+  } catch (error) {
+    console.error('Failed to fetch destinations from database:', error)
+    if (error instanceof Error) {
+      console.error('Error message:', error.message)
+      console.error('Error stack:', error.stack)
+    }
+    // データベース接続エラーの場合は、フォールバックデータを使用
+    destinations = fallbackDestinations
+  }
+
   return (
     <section className="py-16 md:py-24">
       <div className="container">
@@ -59,9 +83,23 @@ export function PopularDestinations() {
         </div>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {destinations.map((destination) => (
-            <DestinationCard key={destination.name} {...destination} />
-          ))}
+          {destinations.map((destination) => {
+            const defaults = destinationDefaults[destination.name] || {
+              location: '不明',
+              rating: 4.5,
+              price: '¥0~',
+            }
+            return (
+              <DestinationCard
+                key={destination.id}
+                name={destination.name}
+                location={defaults.location}
+                image={`/${destination.imageFilename}`}
+                rating={defaults.rating}
+                price={defaults.price}
+              />
+            )
+          })}
         </div>
       </div>
     </section>

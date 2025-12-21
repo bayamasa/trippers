@@ -32,7 +32,7 @@ func (r *MySQLUserRepository) FindBy(ctx context.Context, id int64) (*user.User,
 	FROM 
 		users 
 	WHERE 
-		id = ?`
+		id = $1`
 
 	var dbo UserDBO
 	if err := r.db.Read.QueryRowContext(ctx, query, id).Scan(
