@@ -14,3 +14,19 @@ up: ## Run docker-compose up
 .PHONY: down
 down: ## Run docker-compose down
 	docker compose -f infrastructure/docker-compose.yaml down
+
+.PHONY: db
+db: ## Run docker-compose up -d db
+	docker compose -f infrastructure/docker-compose.yaml up -d db
+	
+.PHONY: db-down
+db-down: ## Run docker-compose down db
+	docker compose -f infrastructure/docker-compose.yaml down db
+
+.PHONY: db-studio
+db-studio: ## Run docker-compose up -d db-studio
+	docker compose -f infrastructure/docker-compose.yaml up -d db-studio
+
+.PHONY: db-studio-down
+db-studio-down: ## Run docker-compose down db-studio
+	docker compose -f infrastructure/docker-compose.yaml down db-studio
