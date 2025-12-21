@@ -1,6 +1,6 @@
 import { DestinationCard } from './destination-card'
-import { db } from '@/src/db'
-import { destinationsTable } from '@/src/db/schema'
+import { db } from '@/db'
+import { destinationsTable } from '@/db/schema'
 
 // デフォルトのロケーション、価格のマッピング
 const destinationDefaults: Record<

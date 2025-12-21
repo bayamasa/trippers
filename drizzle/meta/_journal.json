@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1766300114307,
+      "tag": "0000_chief_madame_masque",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1766300143059,
+      "tag": "0001_high_stingray",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1766300750734,
+      "tag": "0002_supreme_wilson_fisk",
+      "breakpoints": true
+    }
+  ]
+}

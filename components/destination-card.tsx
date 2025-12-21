@@ -1,4 +1,4 @@
-import { MapPin, Star } from 'lucide-react'
+import { MapPin } from 'lucide-react'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
@@ -7,7 +7,6 @@ interface DestinationCardProps {
   name: string
   location: string
   image: string
-  rating: number
   price: string
 }
 
@@ -15,7 +14,6 @@ export function DestinationCard({
   name,
   location,
   image,
-  rating,
   price,
 }: DestinationCardProps) {
   return (
@@ -27,10 +25,6 @@ export function DestinationCard({
           fill
           className="object-cover transition-transform duration-300 group-hover:scale-110"
         />
-        <div className="absolute top-4 right-4 flex items-center gap-1 rounded-full bg-white px-3 py-1 font-semibold text-sm">
-          <Star className="h-4 w-4 fill-accent text-accent" />
-          {rating}
-        </div>
       </div>
       <CardContent className="p-4">
         <h3 className="mb-2 text-balance font-semibold text-xl">{name}</h3>
