@@ -82,38 +82,8 @@ async function generateTransparentIcon() {
       }
     }
 
-    // 有効領域（不透明な部分）のバウンディングボックスを計算
-    let minX = width;
-    let minY = height;
-    let maxX = 0;
-    let maxY = 0;
-
-    for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
-        const index = (y * width + x) * 4;
-        const alpha = data[index + 3];
-        if (alpha > 0) {
-          // 不透明なピクセル
-          if (x < minX) minX = x;
-          if (x > maxX) maxX = x;
-          if (y < minY) minY = y;
-          if (y > maxY) maxY = y;
-        }
-      }
-    }
-
-    // パディングを追加（余白を確保）
-    const padding = 10;
-    minX = Math.max(0, minX - padding);
-    minY = Math.max(0, minY - padding);
-    maxX = Math.min(width - 1, maxX + padding);
-    maxY = Math.min(height - 1, maxY + padding);
-
-    const cropWidth = maxX - minX + 1;
-    const cropHeight = maxY - minY + 1;
-
-    // 透過PNGを生成（クロップ前）
-    const fullPng = await sharp(data, {
+    // 透過PNGを生成
+    const transparentPng = await sharp(data, {
       raw: {
         width,
         height,
@@ -123,34 +93,21 @@ async function generateTransparentIcon() {
       .png()
       .toBuffer();
 
-    // 有効領域でクロップ
-    const transparentPng = await sharp(fullPng)
-      .extract({
-        left: minX,
-        top: minY,
-        width: cropWidth,
-        height: cropHeight,
-      })
-      .png()
-      .toBuffer();
-
     // PNGをbase64エンコード
     const base64Image = transparentPng.toString('base64');
     const dataUri = `data:image/png;base64,${base64Image}`;
 
-    // 透過SVGを作成（クロップ後のサイズに合わせる）
+    // 透過SVGを作成
     const svg = `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${cropWidth}" height="${cropHeight}" viewBox="0 0 ${cropWidth} ${cropHeight}">
-  <image width="${cropWidth}" height="${cropHeight}" href="${dataUri}"/>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+  <image width="${width}" height="${height}" href="${dataUri}"/>
 </svg>`;
 
     // SVGファイルを保存
     writeFileSync(outputPath, svg);
 
     console.log(`✅ Transparent icon generated successfully at ${outputPath}`);
-    console.log(`   Original size: ${width}x${height} pixels`);
-    console.log(`   Cropped size: ${cropWidth}x${cropHeight} pixels`);
-    console.log(`   Bounding box: (${minX}, ${minY}) to (${maxX}, ${maxY})`);
+    console.log(`   Size: ${width}x${height} pixels`);
     console.log(`   Method: Green to gray boundary detection (right to left scan)`);
     console.log(`   Format: Transparent PNG embedded in SVG`);
   } catch (error) {

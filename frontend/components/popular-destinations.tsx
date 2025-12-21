@@ -2,44 +2,38 @@ import { DestinationCard } from './destination-card'
 import { db } from '@/src/db'
 import { destinationsTable } from '@/src/db/schema'
 
-// デフォルトのロケーション、レーティング、価格のマッピング
+// デフォルトのロケーション、価格のマッピング
 const destinationDefaults: Record<
   string,
-  { location: string; rating: number; price: string; image: string }
+  { location: string; price: string; image: string }
 > = {
   'バリ島': {
     location: 'インドネシア',
-    rating: 4.8,
     price: '¥89,000~',
     image: 'bali-beach-sunset.png',
   },
   'パリ': {
     location: 'フランス',
-    rating: 4.9,
     price: '¥125,000~',
     image: 'eiffel-tower-paris.png',
   },
   'モルディブ': {
     location: 'インド洋',
-    rating: 4.9,
     price: '¥180,000~',
     image: 'maldives-overwater-bungalows.png',
   },
   '京都': {
     location: '日本',
-    rating: 4.7,
     price: '¥45,000~',
     image: 'kyoto-temple-cherry-blossoms.png',
   },
   'サントリーニ': {
     location: 'ギリシャ',
-    rating: 4.8,
     price: '¥150,000~',
     image: 'santorini-white-blue.png',
   },
   'ドバイ': {
     location: 'アラブ首長国連邦',
-    rating: 4.6,
     price: '¥110,000~',
     image: 'dubai-burj-khalifa-skyline.jpg',
   },
@@ -60,14 +54,22 @@ export async function PopularDestinations() {
   let destinations
   try {
     destinations = await db.select().from(destinationsTable)
+    console.log('✅ Successfully fetched destinations from database')
+    console.log(`   Count: ${destinations.length}`)
+    console.log('   Destinations:', destinations.map((d) => ({
+      id: d.id,
+      name: d.name,
+      imageFilename: d.imageFilename,
+    })))
   } catch (error) {
-    console.error('Failed to fetch destinations from database:', error)
+    console.error('❌ Failed to fetch destinations from database:', error)
     if (error instanceof Error) {
       console.error('Error message:', error.message)
       console.error('Error stack:', error.stack)
     }
     // データベース接続エラーの場合は、フォールバックデータを使用
     destinations = fallbackDestinations
+    console.log('⚠️ Using fallback destinations:', fallbackDestinations.length)
   }
 
   return (
@@ -86,7 +88,6 @@ export async function PopularDestinations() {
           {destinations.map((destination) => {
             const defaults = destinationDefaults[destination.name] || {
               location: '不明',
-              rating: 4.5,
               price: '¥0~',
             }
             return (
@@ -95,7 +96,6 @@ export async function PopularDestinations() {
                 name={destination.name}
                 location={defaults.location}
                 image={`/${destination.imageFilename}`}
-                rating={defaults.rating}
                 price={defaults.price}
               />
             )
