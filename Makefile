@@ -28,6 +28,8 @@ db-reset: ## Reset database (remove volume and recreate)
 	@sleep 5
 	@echo "Applying schema..."
 	@echo "n" | pnpm run db:push || true
+	@echo "Seeding database..."
+	@pnpm run db:seed
 	
 .PHONY: db-down
 db-down: ## Run docker-compose down db
