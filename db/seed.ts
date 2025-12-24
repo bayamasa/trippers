@@ -52,14 +52,14 @@ async function main() {
   const areas = await db
     .insert(areasTable)
     .values([
-      { name: "アジア", code: "ASIA" },
-      { name: "東南アジア", code: "SOUTHEAST_ASIA" },
-      { name: "ヨーロッパ", code: "EUROPE" },
-      { name: "北米", code: "NORTH_AMERICA" },
-      { name: "南米", code: "SOUTH_AMERICA" },
-      { name: "アフリカ", code: "AFRICA" },
-      { name: "オセアニア", code: "OCEANIA" },
-      { name: "中東", code: "MIDDLE_EAST" },
+      { name: "Asia", nameJp: "アジア" },
+      { name: "Southeast Asia", nameJp: "東南アジア" },
+      { name: "Europe", nameJp: "ヨーロッパ" },
+      { name: "North America", nameJp: "北米" },
+      { name: "South America", nameJp: "南米" },
+      { name: "Africa", nameJp: "アフリカ" },
+      { name: "Oceania", nameJp: "オセアニア" },
+      { name: "Middle East", nameJp: "中東" },
     ])
     .returning();
 
@@ -191,10 +191,10 @@ async function main() {
   // 目的地データを投入
   console.log("Seeding destinations...");
   // エリアのIDを取得
-  const asiaId = areas.find((a) => a.code === "ASIA")?.id;
-  const southeastAsiaId = areas.find((a) => a.code === "SOUTHEAST_ASIA")?.id;
-  const europeId = areas.find((a) => a.code === "EUROPE")?.id;
-  const middleEastId = areas.find((a) => a.code === "MIDDLE_EAST")?.id;
+  const asiaId = areas.find((a) => a.name === "Asia")?.id;
+  const southeastAsiaId = areas.find((a) => a.name === "Southeast Asia")?.id;
+  const europeId = areas.find((a) => a.name === "Europe")?.id;
+  const middleEastId = areas.find((a) => a.name === "Middle East")?.id;
 
   if (!asiaId || !southeastAsiaId || !europeId || !middleEastId) {
     throw new Error("Required areas not found");
@@ -203,12 +203,12 @@ async function main() {
   const destinations = await db
     .insert(destinationsTable)
     .values([
-      { name: "バリ島", imageFilename: "bali-beach-sunset.png", areaId: southeastAsiaId },
-      { name: "パリ", imageFilename: "eiffel-tower-paris.png", areaId: europeId },
-      { name: "モルディブ", imageFilename: "maldives-overwater-bungalows.png", areaId: southeastAsiaId },
-      { name: "京都", imageFilename: "kyoto-temple-cherry-blossoms.png", areaId: asiaId },
-      { name: "サントリーニ", imageFilename: "santorini-white-blue.png", areaId: europeId },
-      { name: "ドバイ", imageFilename: "dubai-burj-khalifa-skyline.jpg", areaId: middleEastId },
+      { name: "Bali", nameJp: "バリ島", imageFilename: "bali-beach-sunset.png", areaId: southeastAsiaId },
+      { name: "Paris", nameJp: "パリ", imageFilename: "eiffel-tower-paris.png", areaId: europeId },
+      { name: "Maldives", nameJp: "モルディブ", imageFilename: "maldives-overwater-bungalows.png", areaId: southeastAsiaId },
+      { name: "Kyoto", nameJp: "京都", imageFilename: "kyoto-temple-cherry-blossoms.png", areaId: asiaId },
+      { name: "Santorini", nameJp: "サントリーニ", imageFilename: "santorini-white-blue.png", areaId: europeId },
+      { name: "Dubai", nameJp: "ドバイ", imageFilename: "dubai-burj-khalifa-skyline.jpg", areaId: middleEastId },
     ])
     .returning();
 
@@ -216,12 +216,12 @@ async function main() {
 
   // ツアーデータを投入
   console.log("Seeding tours...");
-  const baliId = destinations.find((d) => d.name === "バリ島")?.id;
-  const parisId = destinations.find((d) => d.name === "パリ")?.id;
-  const maldivesId = destinations.find((d) => d.name === "モルディブ")?.id;
-  const kyotoId = destinations.find((d) => d.name === "京都")?.id;
-  const santoriniId = destinations.find((d) => d.name === "サントリーニ")?.id;
-  const dubaiId = destinations.find((d) => d.name === "ドバイ")?.id;
+  const baliId = destinations.find((d) => d.name === "Bali")?.id;
+  const parisId = destinations.find((d) => d.name === "Paris")?.id;
+  const maldivesId = destinations.find((d) => d.name === "Maldives")?.id;
+  const kyotoId = destinations.find((d) => d.name === "Kyoto")?.id;
+  const santoriniId = destinations.find((d) => d.name === "Santorini")?.id;
+  const dubaiId = destinations.find((d) => d.name === "Dubai")?.id;
 
   if (!baliId || !parisId || !maldivesId || !kyotoId || !santoriniId || !dubaiId) {
     throw new Error("Required destinations not found");
