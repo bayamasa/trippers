@@ -11,8 +11,7 @@ export function DestinationCard({
   tourData: TourWithDestinationAndArea
 }) {
   // ツアー詳細ページへのリンクを作成
-  const destinationName = encodeURIComponent(tourData.destination.name);
-  const href = `/area/${destinationName}/tours/${tourData.tour.id}`;
+  const href = `/destinations/${tourData.destination.id}/tours/${tourData.tour.id}`;
 
   return (
     <Card className="group overflow-hidden transition-shadow hover:shadow-lg">
@@ -30,7 +29,7 @@ export function DestinationCard({
         </h3>
         <div className="mb-2 flex items-center gap-1 text-muted-foreground">
           <MapPin className="h-4 w-4" />
-          <span className="text-sm">{tourData.area.name}</span>
+          <span className="text-sm">{tourData.area.nameJp}</span>
         </div>
         <div className="mb-4 space-y-1 text-sm text-muted-foreground">
           <p>旅行日数: {tourData.tour.days}泊{tourData.tour.days + 1}日</p>
