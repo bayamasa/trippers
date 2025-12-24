@@ -92,5 +92,11 @@
   },
   "volta": {
     "node": "24.12.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp"
+    ]
   }
 }
