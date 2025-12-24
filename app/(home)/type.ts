@@ -16,10 +16,12 @@ export const tourWithDestinationAndAreaSchema = z.object({
   destination: destinationsSchema.pick({
     id: true,
     name: true,
+    nameJp: true,
     imageFilename: true,
   }),
   area: areasSchema.pick({
     name: true,
+    nameJp: true,
   }),
 })
 

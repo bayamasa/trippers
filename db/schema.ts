@@ -1,15 +1,4 @@
-import { bigint, bigserial, boolean, date, integer, pgEnum, pgTable, text, timestamp, varchar } from "drizzle-orm/pg-core";
-
-export const areaCodeEnum = pgEnum("area_code", [
-  "ASIA",
-  "SOUTHEAST_ASIA",
-  "EUROPE",
-  "NORTH_AMERICA",
-  "SOUTH_AMERICA",
-  "AFRICA",
-  "OCEANIA",
-  "MIDDLE_EAST",
-]);
+import { bigint, bigserial, boolean, date, integer, pgTable, text, timestamp, varchar } from "drizzle-orm/pg-core";
 
 export const usersTable = pgTable("users", {
   id: bigserial("id", { mode: "number" }).primaryKey(),
@@ -27,7 +16,7 @@ export const usersTable = pgTable("users", {
 export const areasTable = pgTable("areas", {
   id: bigserial("id", { mode: "number" }).primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
-  code: areaCodeEnum("code").notNull(),
+  nameJp: varchar("name_jp", { length: 255 }).notNull(),
 });
 
 export const airportsTable = pgTable("airports", {
@@ -59,6 +48,7 @@ export const destinationsTable = pgTable("destinations", {
     .notNull()
     .references(() => areasTable.id),
   name: varchar("name", { length: 255 }).notNull(),
+  nameJp: varchar("name_jp", { length: 255 }).notNull(),
   imageFilename: varchar("image_filename", { length: 255 }).notNull(),
   createdAt: timestamp("created_at", { mode: "date", precision: 6 })
     .notNull()

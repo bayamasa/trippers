@@ -5,12 +5,29 @@ import { eq } from 'drizzle-orm'
 import { TourWithDestinationAndArea } from '@/app/(home)/type'
 
 export async function PopularDestinations() {
-  // RSCでデータベースからツアー情報を取得（toursTableの全項目を含む）
+  // RSCでデータベースからツアー情報を取得
   const tours: TourWithDestinationAndArea[] = await db
     .select({
-      tour: toursTable,
-      destination: destinationsTable,
-      area: areasTable,
+      tour: {
+        id: toursTable.id,
+        title: toursTable.title,
+        minPriceTaxIncluded: toursTable.minPriceTaxIncluded,
+        departsAirportId: toursTable.departsAirportId,
+        days: toursTable.days,
+        isDirectFlight: toursTable.isDirectFlight,
+        airlinesId: toursTable.airlinesId,
+        hotelId: toursTable.hotelId,
+      },
+      destination: {
+        id: destinationsTable.id,
+        name: destinationsTable.name,
+        nameJp: destinationsTable.nameJp,
+        imageFilename: destinationsTable.imageFilename,
+      },
+      area: {
+        name: areasTable.name,
+        nameJp: areasTable.nameJp,
+      },
     })
     .from(toursTable)
     .innerJoin(
