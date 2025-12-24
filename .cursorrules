@@ -1,0 +1,46 @@
+# パスの指定方法
+
+## インポートパス
+
+- **相対パス（`.`で始まるパス）は使用禁止**
+- **必ず`@`エイリアスを使用すること**
+
+### 正しい例
+
+```typescript
+// ✅ 正しい: @エイリアスを使用
+import { db } from '@/db'
+import { Header } from '@/components/header'
+import { TourWithDestinationAndArea } from '@/app/(home)/type'
+import { DestinationCard } from '@/app/(home)/_components/destination-card'
+```
+
+### 間違った例
+
+```typescript
+// ❌ 間違っている: 相対パスを使用
+import { TourWithDestinationAndArea } from '../type'
+import { DestinationCard } from './destination-card'
+import { Header } from '../../components/header'
+```
+
+## パスエイリアスの設定
+
+プロジェクトでは`tsconfig.json`で以下のエイリアスが設定されています：
+
+```json
+{
+  "paths": {
+    "@/*": ["./*"]
+  }
+}
+```
+
+これにより、プロジェクトルートからの絶対パスを`@/`で始めることで指定できます。
+
+## パス指定のルール
+
+1. すべてのインポートは`@/`で始めること
+2. 相対パス（`./`や`../`）は使用しないこと
+3. ファイルパスはプロジェクトルートからの絶対パスで指定すること
+
