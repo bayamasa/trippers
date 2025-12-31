@@ -1,4 +1,4 @@
-import { Hono } from 'hono'
+import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
 import { db } from '@db/index'
 import {
   areasTable,
@@ -8,17 +8,68 @@ import {
   toursTable,
 } from '@db/schema'
 import { and, eq, gte } from 'drizzle-orm'
+import {
+  TourWithDestinationAndAreaSchema,
+  TourDetailResponseSchema,
+} from '../schemas/tour'
 
-const destinations = new Hono()
+const destinations = new OpenAPIHono()
 
-// GET /api/destinations/:id/tours - 特定の目的地のツアー一覧取得
-destinations.get('/:id/tours', async (c) => {
+// GET /api/destinations/:destination_id/tours - 特定の目的地のツアー一覧取得
+const getDestinationToursRoute = createRoute({
+  method: 'get',
+  path: '/:destination_id/tours',
+  tags: ['Destinations'],
+  summary: '特定の目的地のツアー一覧を取得',
+  description: '指定された目的地のツアー情報を取得します',
+  request: {
+    params: z.object({
+      destination_id: z.string().regex(/^\d+$/).transform(Number).openapi({
+        param: {
+          name: 'destination_id',
+          in: 'path',
+        },
+        example: '1',
+      }),
+    }),
+  },
+  responses: {
+    200: {
+      description: 'ツアー一覧の取得に成功',
+      content: {
+        'application/json': {
+          schema: z.object({
+            data: z.array(TourWithDestinationAndAreaSchema),
+          }),
+        },
+      },
+    },
+    400: {
+      description: '不正なパラメータ',
+      content: {
+        'application/json': {
+          schema: z.object({
+            error: z.string(),
+          }),
+        },
+      },
+    },
+    500: {
+      description: 'サーバーエラー',
+      content: {
+        'application/json': {
+          schema: z.object({
+            error: z.string(),
+          }),
+        },
+      },
+    },
+  },
+})
+
+destinations.openapi(getDestinationToursRoute, async (c) => {
   try {
-    const destinationId = parseInt(c.req.param('id'), 10)
-
-    if (isNaN(destinationId)) {
-      return c.json({ error: 'Invalid destination ID' }, 400)
-    }
+    const { destination_id: destinationId } = c.req.valid('param')
 
     const toursList = await db
       .select({
@@ -59,15 +110,78 @@ destinations.get('/:id/tours', async (c) => {
   }
 })
 
-// GET /api/destinations/:id/tours/:tour_id - ツアー詳細取得
-destinations.get('/:id/tours/:tour_id', async (c) => {
-  try {
-    const destinationId = parseInt(c.req.param('id'), 10)
-    const tourId = parseInt(c.req.param('tour_id'), 10)
+// GET /api/destinations/:destination_id/tours/:tour_id - ツアー詳細取得
+const getTourDetailRoute = createRoute({
+  method: 'get',
+  path: '/:destination_id/tours/:tour_id',
+  tags: ['Destinations'],
+  summary: 'ツアー詳細を取得',
+  description: '指定されたツアーの詳細情報と在庫情報を取得します',
+  request: {
+    params: z.object({
+      destination_id: z.string().regex(/^\d+$/).transform(Number).openapi({
+        param: {
+          name: 'destination_id',
+          in: 'path',
+        },
+        example: '1',
+      }),
+      tour_id: z.string().regex(/^\d+$/).transform(Number).openapi({
+        param: {
+          name: 'tour_id',
+          in: 'path',
+        },
+        example: '1',
+      }),
+    }),
+  },
+  responses: {
+    200: {
+      description: 'ツアー詳細の取得に成功',
+      content: {
+        'application/json': {
+          schema: z.object({
+            data: TourDetailResponseSchema,
+          }),
+        },
+      },
+    },
+    400: {
+      description: '不正なパラメータ',
+      content: {
+        'application/json': {
+          schema: z.object({
+            error: z.string(),
+          }),
+        },
+      },
+    },
+    404: {
+      description: 'ツアーが見つかりません',
+      content: {
+        'application/json': {
+          schema: z.object({
+            error: z.string(),
+          }),
+        },
+      },
+    },
+    500: {
+      description: 'サーバーエラー',
+      content: {
+        'application/json': {
+          schema: z.object({
+            error: z.string(),
+          }),
+        },
+      },
+    },
+  },
+})
 
-    if (isNaN(destinationId) || isNaN(tourId)) {
-      return c.json({ error: 'Invalid destination ID or tour ID' }, 400)
-    }
+destinations.openapi(getTourDetailRoute, async (c) => {
+  try {
+    const { destination_id: destinationId, tour_id: tourId } = c.req.valid('param')
 
     // ツアー情報を取得
     const tour = await db
@@ -130,8 +244,12 @@ destinations.get('/:id/tours/:tour_id', async (c) => {
         )
 
         return {
-          ...stock,
+          id: stock.id,
+          tourId: stock.tourId,
+          eventStartDate: stock.eventStartDate,
+          maxCapacity: stock.maxCapacity,
           availableCapacity: stock.maxCapacity - reservedCount,
+          createdAt: stock.createdAt.toISOString(),
         }
       })
     )
