@@ -44,6 +44,7 @@ next-env.d.ts
 frontend/.next/
 frontend/out/
 frontend/next-env.d.ts
+frontend/node_modules/
 backend/dist/
 backend/node_modules/
 packages/*/dist/
