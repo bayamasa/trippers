@@ -39,3 +39,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# monorepo
+frontend/.next/
+frontend/out/
+frontend/next-env.d.ts
+backend/dist/
+backend/node_modules/
+packages/*/dist/
+packages/*/node_modules/
