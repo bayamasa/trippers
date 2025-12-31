@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "bun run --watch src/index.ts",
-    "build": "bun build src/index.ts --outdir=dist --target=bun",
-    "start": "bun run dist/index.js",
+    "dev": "$HOME/.volta/bin/bun run --watch src/index.ts",
+    "build": "$HOME/.volta/bin/bun build src/index.ts --outdir=dist --target=bun",
+    "start": "$HOME/.volta/bin/bun run dist/index.js",
     "lint": "biome check ."
   },
   "dependencies": {

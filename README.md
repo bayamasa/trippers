@@ -67,25 +67,44 @@ pnpm run db:seed
 
 ## 開発サーバーの起動
 
-### 全てを起動
+### Makeコマンドを使用（推奨）
 
 ```bash
-pnpm dev
+# 全て起動（DB + Backend + Frontend）
+make dev
+
+# フロントエンドのみ起動
+make dev-front
+
+# バックエンドのみ起動（DBも自動起動）
+make dev-back
+
+# データベースのみ起動
+make dev-db
+
+# 全てのサービスを停止
+make stop
+
+# 利用可能なコマンド一覧を表示
+make help
 ```
 
-これにより以下が並列で起動されます：
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:3001
-
-### 個別に起動
+### pnpmコマンドを直接使用
 
 ```bash
+# 全て起動（DB手動起動が必要）
+pnpm dev
+
 # フロントエンドのみ
 pnpm dev:frontend
 
 # バックエンドのみ
 pnpm dev:backend
 ```
+
+起動後のアクセス先：
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:3001
 
 ## API エンドポイント
 
