@@ -1,18 +1,11 @@
 import { notFound } from "next/navigation";
-import { db } from "@trippers/shared/db";
-import {
-  areasTable,
-  destinationsTable,
-  reservationEventsTable,
-  tourStocksTable,
-  toursTable,
-} from "@trippers/shared/schema";
-import { and, eq, gte, sql } from "drizzle-orm";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { TourHeroSection } from "@/components/tour-hero-section";
 import { TourInfoSection } from "@/components/tour-info-section";
 import { TourStocksSection } from "@/components/tour-stocks-section";
+import { getTourDetail } from "@/lib/api-client";
+import type { TourDetailResponse } from "@/lib/api-client";
 
 interface TourDetailPageProps {
   params: Promise<{
@@ -21,91 +14,51 @@ interface TourDetailPageProps {
   }>;
 }
 
-async function getTourData(destinationName: string, tourId: string) {
+async function getTourData(
+  destinationName: string,
+  tourId: string
+): Promise<TourDetailResponse | null> {
   try {
     // URLデコード
     const decodedDestinationName = decodeURIComponent(destinationName);
     const tourIdNum = parseInt(tourId, 10);
 
-    if (isNaN(tourIdNum)) {
+    if (Number.isNaN(tourIdNum)) {
       return null;
     }
 
-    // ツアー情報を取得（JOINでarea、destination、tour_stocksも取得）
-    const tour = await db
-      .select({
-        tour: toursTable,
-        destination: destinationsTable,
-        area: areasTable,
-      })
-      .from(toursTable)
-      .innerJoin(
-        destinationsTable,
-        eq(toursTable.destinationId, destinationsTable.id)
-      )
-      .innerJoin(areasTable, eq(destinationsTable.areaId, areasTable.id))
-      .where(
-        and(
-          eq(toursTable.id, tourIdNum),
-          eq(destinationsTable.name, decodedDestinationName)
-        )
-      )
-      .limit(1);
-
-    if (tour.length === 0) {
-      return null;
-    }
-
-    // 利用可能な在庫情報を取得（未来の日付のみ）
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const stocks = await db
-      .select()
-      .from(tourStocksTable)
-      .where(
-        and(
-          eq(tourStocksTable.tourId, tourIdNum),
-          gte(tourStocksTable.eventStartDate, today.toISOString().split("T")[0])
-        )
-      )
-      .orderBy(tourStocksTable.eventStartDate);
-
-    // 各在庫の予約数を取得
-    const stocksWithReservations = await Promise.all(
-      stocks.map(async (stock) => {
-        const reservations = await db
-          .select({
-            numberOfPeople: reservationEventsTable.numberOfPeople,
-          })
-          .from(reservationEventsTable)
-          .where(
-            and(
-              eq(reservationEventsTable.tourStockId, stock.id),
-              eq(reservationEventsTable.status, "confirmed")
-            )
-          );
-
-        const reservedCount = reservations.reduce(
-          (sum, r) => sum + r.numberOfPeople,
-          0
-        );
-
-        return {
-          ...stock,
-          availableCapacity: stock.maxCapacity - reservedCount,
-        };
-      })
+    // まず全ツアーを取得して、destination nameからdestination IDを特定
+    // Note: より効率的にするには、バックエンドAPIにdestination nameで検索できるエンドポイントを追加することを推奨
+    const allToursResponse = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/api/tours`,
+      {
+        cache: "no-store",
+      }
     );
 
-    return {
-      tour: tour[0].tour,
-      destination: tour[0].destination,
-      area: tour[0].area,
-      stocks: stocksWithReservations.filter(
-        (stock) => stock.availableCapacity > 0
-      ),
-    };
+    if (!allToursResponse.ok) {
+      return null;
+    }
+
+    const { data: allTours } = await allToursResponse.json();
+
+    // destination nameに一致するツアーを探す
+    const matchingTour = allTours.find(
+      (t: { tour: { id: number }; destination: { name: string } }) =>
+        t.tour.id === tourIdNum && t.destination.name === decodedDestinationName
+    );
+
+    if (!matchingTour) {
+      return null;
+    }
+
+    // destination IDを使ってツアー詳細を取得
+    const tourDetail = await getTourDetail(
+      matchingTour.destination.id,
+      tourIdNum
+    );
+
+    return tourDetail;
   } catch (error) {
     console.error("Error fetching tour data:", error);
     return null;
@@ -142,4 +95,3 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
     </div>
   );
 }
-

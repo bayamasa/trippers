@@ -14,7 +14,6 @@ interface TourInfoSectionProps {
     name: string;
   };
   area: {
-    id: number;
     name: string;
   };
 }
