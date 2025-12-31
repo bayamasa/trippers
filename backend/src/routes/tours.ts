@@ -1,10 +1,10 @@
 import { Hono } from 'hono'
-import { db } from '@trippers/shared/db'
+import { db } from '@db/index'
 import {
   areasTable,
   destinationsTable,
   toursTable,
-} from '@trippers/shared/schema'
+} from '@db/schema'
 import { eq } from 'drizzle-orm'
 
 const tours = new Hono()
