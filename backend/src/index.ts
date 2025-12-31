@@ -1,10 +1,11 @@
-import { Hono } from 'hono'
+import { OpenAPIHono } from '@hono/zod-openapi'
 import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
+import { swaggerUI } from '@hono/swagger-ui'
 import { toursRoute } from './routes/tours'
 import { destinationsRoute } from './routes/destinations'
 
-const app = new Hono()
+const app = new OpenAPIHono()
 
 app.use('*', logger())
 app.use(
@@ -19,8 +20,21 @@ app.get('/health', (c) => {
   return c.json({ status: 'ok', timestamp: new Date().toISOString() })
 })
 
-app.route('/api/tours', toursRoute)
-app.route('/api/destinations', destinationsRoute)
+app.route('/v1/tours', toursRoute)
+app.route('/v1/destinations', destinationsRoute)
+
+// OpenAPI仕様書のエンドポイント
+app.doc('/doc', {
+  openapi: '3.0.0',
+  info: {
+    version: '1.0.0',
+    title: 'Trippers API',
+    description: 'Travel booking API for Trippers application',
+  },
+})
+
+// Swagger UIのエンドポイント
+app.get('/ui', swaggerUI({ url: '/doc' }))
 
 const port = process.env.PORT || 3001
 
@@ -30,3 +44,4 @@ export default {
 }
 
 console.log(`🚀 Backend server running on http://localhost:${port}`)
+console.log(`📚 Swagger UI available at http://localhost:${port}/ui`)

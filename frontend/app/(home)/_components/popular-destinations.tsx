@@ -1,5 +1,6 @@
 import { DestinationCard } from '@/app/(home)/_components/destination-card'
-import { getTours, type TourWithDestinationAndArea } from '@/lib/api-client'
+import type { TourWithDestinationAndArea } from '@/app/(home)/type'
+import { getTours } from '@/lib/api/tours'
 
 export async function PopularDestinations() {
   // RSCでバックエンドAPIからツアー情報を取得
@@ -27,10 +28,7 @@ export async function PopularDestinations() {
           {tours.length > 0 ? (
             tours.map((tourData) => {
               return (
-                <DestinationCard
-                  key={tourData.tour.id}
-                  tourData={tourData}
-                />
+                <DestinationCard key={tourData.tour.id} tourData={tourData} />
               )
             })
           ) : (
@@ -43,4 +41,3 @@ export async function PopularDestinations() {
     </section>
   )
 }
-

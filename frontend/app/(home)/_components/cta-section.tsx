@@ -26,4 +26,3 @@ export function CTASection() {
     </section>
   )
 }
-

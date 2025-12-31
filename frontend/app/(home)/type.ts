@@ -1,30 +1,4 @@
-import { areasSchema, destinationsSchema, toursSchema } from '@/db/type'
-import { z } from 'zod'
+import type { GetToursResponse } from '@/lib/api/tours'
 
-// JOINした結果のスキーマ（使用するフィールドのみをpick）
-export const tourWithDestinationAndAreaSchema = z.object({
-  tour: toursSchema.pick({
-    id: true,
-    title: true,
-    minPriceTaxIncluded: true,
-    departsAirportId: true,
-    days: true,
-    isDirectFlight: true,
-    airlinesId: true,
-    hotelId: true,
-  }),
-  destination: destinationsSchema.pick({
-    id: true,
-    name: true,
-    nameJp: true,
-    imageFilename: true,
-  }),
-  area: areasSchema.pick({
-    name: true,
-    nameJp: true,
-  }),
-})
-
-// 型推論
-export type TourWithDestinationAndArea = z.infer<typeof tourWithDestinationAndAreaSchema>
-
+// OpenAPI生成型から型を派生
+export type TourWithDestinationAndArea = GetToursResponse['data'][number]

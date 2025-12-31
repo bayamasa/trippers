@@ -1,8 +1,8 @@
-import Image from "next/image";
+import Image from 'next/image'
 
 interface TourHeroSectionProps {
-  title: string;
-  thumbnailFileName: string;
+  title: string
+  thumbnailFileName: string
 }
 
 export function TourHeroSection({
@@ -25,6 +25,5 @@ export function TourHeroSection({
         </h1>
       </div>
     </section>
-  );
+  )
 }
-

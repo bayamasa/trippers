@@ -1,22 +1,19 @@
-import { Calendar } from "lucide-react";
-import { ReservationButton } from "@/components/reservation-button";
+import { Calendar } from 'lucide-react'
+import { ReservationButton } from '@/components/reservation-button'
 
 interface Stock {
-  id: number;
-  eventStartDate: Date | string;
-  maxCapacity: number;
-  availableCapacity: number;
+  id: number
+  eventStartDate: Date | string
+  maxCapacity: number
+  availableCapacity: number
 }
 
 interface TourStocksSectionProps {
-  stocks: Stock[];
-  tourId: number;
+  stocks: Stock[]
+  tourId: number
 }
 
-export function TourStocksSection({
-  stocks,
-  tourId,
-}: TourStocksSectionProps) {
+export function TourStocksSection({ stocks, tourId }: TourStocksSectionProps) {
   if (stocks.length === 0) {
     return (
       <section className="py-12 md:py-16">
@@ -28,18 +25,18 @@ export function TourStocksSection({
           </div>
         </div>
       </section>
-    );
+    )
   }
 
   const formatDate = (date: Date | string) => {
-    const d = typeof date === "string" ? new Date(date) : date;
-    return d.toLocaleDateString("ja-JP", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      weekday: "short",
-    });
-  };
+    const d = typeof date === 'string' ? new Date(date) : date
+    return d.toLocaleDateString('ja-JP', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      weekday: 'short',
+    })
+  }
 
   return (
     <section className="py-12 md:py-16">
@@ -60,9 +57,9 @@ export function TourStocksSection({
                     {formatDate(stock.eventStartDate)}
                   </span>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  残り {stock.availableCapacity} 席 / 定員 {stock.maxCapacity}
-                   {" "}席
+                <p className="text-muted-foreground text-sm">
+                  残り {stock.availableCapacity} 席 / 定員 {stock.maxCapacity}{' '}
+                  席
                 </p>
               </div>
               <ReservationButton
@@ -75,6 +72,5 @@ export function TourStocksSection({
         </div>
       </div>
     </section>
-  );
+  )
 }
-

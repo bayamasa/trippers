@@ -1,9 +1,9 @@
 import { MapPin } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import type { TourWithDestinationAndArea } from '@/app/(home)/type'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
-import { TourWithDestinationAndArea } from '@/app/(home)/type'
 
 export function DestinationCard({
   tourData,
@@ -11,7 +11,7 @@ export function DestinationCard({
   tourData: TourWithDestinationAndArea
 }) {
   // ツアー詳細ページへのリンクを作成
-  const href = `/area/${tourData.destination.name}/tours/${tourData.tour.id}`;
+  const href = `/area/${tourData.destination.name}/tours/${tourData.tour.id}`
 
   return (
     <Card className="group overflow-hidden transition-shadow hover:shadow-lg">
@@ -31,8 +31,10 @@ export function DestinationCard({
           <MapPin className="h-4 w-4" />
           <span className="text-sm">{tourData.area.nameJp}</span>
         </div>
-        <div className="mb-4 space-y-1 text-sm text-muted-foreground">
-          <p>旅行日数: {tourData.tour.days}泊{tourData.tour.days + 1}日</p>
+        <div className="mb-4 space-y-1 text-muted-foreground text-sm">
+          <p>
+            旅行日数: {tourData.tour.days}泊{tourData.tour.days + 1}日
+          </p>
           <p>フライト: {tourData.tour.isDirectFlight ? '直行便' : '経由便'}</p>
           <p>出発空港ID: {tourData.tour.departsAirportId}</p>
           <p>航空会社ID: {tourData.tour.airlinesId}</p>
@@ -50,4 +52,3 @@ export function DestinationCard({
     </Card>
   )
 }
-
