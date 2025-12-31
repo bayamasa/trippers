@@ -10,7 +10,6 @@
     "lint": "biome check ."
   },
   "dependencies": {
-    "@trippers/shared": "workspace:*",
     "hono": "^4.7.11",
     "@hono/zod-validator": "^0.4.1",
     "drizzle-orm": "^0.45.1",
