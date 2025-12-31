@@ -11,7 +11,7 @@ export function DestinationCard({
   tourData: TourWithDestinationAndArea
 }) {
   // ツアー詳細ページへのリンクを作成
-  const href = `/destinations/${tourData.destination.id}/tours/${tourData.tour.id}`;
+  const href = `/area/${tourData.destination.name}/tours/${tourData.tour.id}`;
 
   return (
     <Card className="group overflow-hidden transition-shadow hover:shadow-lg">

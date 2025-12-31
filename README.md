@@ -1,71 +1,205 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Trippers - 旅行予約プラットフォーム
+
+モノレポ構成のフルスタックアプリケーション。フロントエンドはNext.js、バックエンドはHono × Bunで構築されています。
+
+## プロジェクト構成
+
+```
+trippers/
+├── frontend/          # Next.js フロントエンド (Port: 3000)
+├── backend/           # Hono × Bun バックエンド API (Port: 3001)
+├── packages/
+│   └── shared/        # 共有パッケージ (Drizzle ORM スキーマ等)
+└── docker-compose.yaml # PostgreSQL データベース
+```
+
+## 前提条件
+
+- Node.js 24.x (Volta推奨)
+- pnpm 10.x
+- Bun 1.x
+- Docker & Docker Compose
 
 ## セットアップ
 
-### 依存関係のインストール
+### 1. 依存関係のインストール
 
 ```bash
 pnpm install
-# or
-npm install
-# or
-yarn install
-# or
-bun install
 ```
 
-### 環境変数の設定
+### 2. データベースの起動
 
-`.env.local` ファイルをプロジェクトルートに作成し、以下の内容を追加してください：
+```bash
+docker-compose up -d
+```
+
+### 3. 環境変数の設定
+
+#### Frontend (.env.local)
+
+`frontend/.env.local` を作成：
 
 ```env
 DATABASE_URL=postgresql://trippers:trippers@localhost:5432/trippers
+NEXT_PUBLIC_API_URL=http://localhost:3001
 ```
 
-### データベースマイグレーション
+#### Backend (.env)
 
-スキーマをデータベースに適用するには：
+`backend/.env` を作成：
+
+```env
+PORT=3001
+FRONTEND_URL=http://localhost:3000
+DATABASE_URL=postgres://trippers:trippers@localhost:5432/trippers
+```
+
+### 4. データベースマイグレーション
 
 ```bash
-# 直接データベースに適用（開発環境推奨）
+# スキーマをデータベースに適用
 pnpm run db:push
 
-# または、マイグレーションファイルを生成して適用
+# シードデータの投入（オプション）
+pnpm run db:seed
+```
+
+## 開発サーバーの起動
+
+### Makeコマンドを使用（推奨）
+
+```bash
+# 全て起動（DB + Backend + Frontend）
+make dev
+
+# フロントエンドのみ起動
+make dev-front
+
+# バックエンドのみ起動（DBも自動起動）
+make dev-back
+
+# データベースのみ起動
+make dev-db
+
+# 全てのサービスを停止
+make stop
+
+# 利用可能なコマンド一覧を表示
+make help
+```
+
+### pnpmコマンドを直接使用
+
+```bash
+# 全て起動（DB手動起動が必要）
+pnpm dev
+
+# フロントエンドのみ
+pnpm dev:frontend
+
+# バックエンドのみ
+pnpm dev:backend
+```
+
+起動後のアクセス先：
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:3001
+
+## API エンドポイント
+
+RESTfulなリソース指向設計に基づいています。
+
+### ヘルスチェック
+```
+GET /health
+```
+
+### ツアー関連
+
+#### 全ツアー一覧取得
+```
+GET /api/tours
+```
+
+#### 特定の目的地のツアー一覧取得
+```
+GET /api/destinations/:id/tours
+```
+
+#### ツアー詳細取得
+```
+GET /api/destinations/:id/tours/:tour_id
+```
+
+例:
+- `GET /api/destinations/1/tours` - destination_id=1のツアー一覧
+- `GET /api/destinations/1/tours/1` - destination_id=1、tour_id=1の詳細
+
+## データベース管理
+
+### Drizzle Studio の起動
+
+```bash
+pnpm run db:studio
+```
+
+### マイグレーション生成
+
+```bash
 pnpm run db:generate
+```
+
+### マイグレーション適用
+
+```bash
 pnpm run db:migrate
 ```
 
-## Getting Started
+## ビルド
 
-開発サーバーを起動：
+### 全てのプロジェクトをビルド
 
 ```bash
-pnpm dev
-# or
-npm run dev
-# or
-yarn dev
-# or
-bun dev
+pnpm build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 個別にビルド
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# フロントエンド
+pnpm build:frontend
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# バックエンド
+pnpm build:backend
+```
+
+## 技術スタック
+
+### Frontend
+- Next.js 16 (App Router, RSC)
+- React 19
+- TypeScript
+- Tailwind CSS 4
+- shadcn/ui (Radix UI)
+- Biome (Linter & Formatter)
+
+### Backend
+- Hono 4
+- Bun 1.x (Runtime)
+- TypeScript
+- Drizzle ORM
+
+### Database
+- PostgreSQL 17
+- Drizzle ORM
+
+### Monorepo
+- pnpm workspaces
 
 ## Learn More
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Hono Documentation](https://hono.dev/)
+- [Bun Documentation](https://bun.sh/docs)
+- [Drizzle ORM Documentation](https://orm.drizzle.team/)

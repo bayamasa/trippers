@@ -1,6 +1,6 @@
 .PHONY: help
-help:
-	@grep -E '^[%/a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-22s\033[0m %s\n", $$1, $$2}'
+help: ## Show this help message
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-22s\033[0m %s\n", $$1, $$2}'
 	@echo ''
 
 .PHONY: up
@@ -38,3 +38,39 @@ db-down: ## Run docker-compose down db
 .PHONY: db-studio
 db-studio: ## Run Drizzle Studio
 	pnpm run db:studio
+
+# Development commands
+.PHONY: dev
+dev: ## Start all services (DB + Backend + Frontend)
+	@echo "Starting all services..."
+	@make db
+	@echo "Waiting for database to be ready..."
+	@sleep 3
+	@echo "Starting backend and frontend..."
+	@echo "Backend: http://localhost:3001"
+	@echo "Frontend: http://localhost:3000"
+	@echo ""
+	@pnpm dev
+
+.PHONY: dev-front
+dev-front: ## Start frontend only
+	@echo "Starting frontend..."
+	@pnpm dev:frontend
+
+.PHONY: dev-back
+dev-back: ## Start backend only (with DB)
+	@echo "Starting database..."
+	@make db
+	@echo "Waiting for database to be ready..."
+	@sleep 3
+	@echo "Starting backend..."
+	@pnpm dev:backend
+
+.PHONY: dev-db
+dev-db: ## Start database only
+	@make db
+
+.PHONY: stop
+stop: ## Stop all services
+	@echo "Stopping all services..."
+	@make down

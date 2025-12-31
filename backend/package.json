@@ -1,0 +1,26 @@
+{
+  "name": "backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "$HOME/.volta/bin/bun run --watch src/index.ts",
+    "build": "$HOME/.volta/bin/bun build src/index.ts --outdir=dist --target=bun",
+    "start": "$HOME/.volta/bin/bun run dist/index.js",
+    "lint": "biome check ."
+  },
+  "dependencies": {
+    "@trippers/shared": "workspace:*",
+    "hono": "^4.7.11",
+    "@hono/zod-validator": "^0.4.1",
+    "drizzle-orm": "^0.45.1",
+    "pg": "^8.16.3",
+    "zod": "4.1.13"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.8",
+    "@types/bun": "^1.2.5",
+    "@types/pg": "^8.16.0",
+    "typescript": "^5.9.3"
+  }
+}
