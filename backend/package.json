@@ -10,12 +10,13 @@
     "lint": "biome check ."
   },
   "dependencies": {
+    "@trippers/shared": "workspace:*",
     "@hono/swagger-ui": "^0.5.3",
     "@hono/zod-openapi": "^0.18.4",
     "drizzle-orm": "^0.45.1",
     "hono": "^4.7.11",
     "pg": "^8.16.3",
-    "zod": "^3.23.8"
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.8",

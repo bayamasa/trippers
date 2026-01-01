@@ -1,12 +1,8 @@
-import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
 import { db } from '@db/index'
-import {
-  areasTable,
-  destinationsTable,
-  toursTable,
-} from '@db/schema'
+import { areasTable, destinationsTable, toursTable } from '@db/schema'
+import { createRoute, OpenAPIHono, z } from '@hono/zod-openapi'
+import { ToursResponse } from '@trippers/shared/schemas/responses'
 import { eq } from 'drizzle-orm'
-import { TourWithDestinationAndAreaSchema } from '../schemas/tour'
 
 const tours = new OpenAPIHono()
 
@@ -22,9 +18,7 @@ const getToursRoute = createRoute({
       description: 'ツアー一覧の取得に成功',
       content: {
         'application/json': {
-          schema: z.object({
-            data: z.array(TourWithDestinationAndAreaSchema),
-          }),
+          schema: ToursResponse,
         },
       },
     },
@@ -70,11 +64,11 @@ tours.openapi(getToursRoute, async (c) => {
       .from(toursTable)
       .innerJoin(
         destinationsTable,
-        eq(toursTable.destinationId, destinationsTable.id)
+        eq(toursTable.destinationId, destinationsTable.id),
       )
       .innerJoin(areasTable, eq(destinationsTable.areaId, areasTable.id))
 
-    return c.json({ data: toursList })
+    return c.json(toursList, 200)
   } catch (error) {
     console.error('Error fetching tours:', error)
     return c.json({ error: 'Failed to fetch tours' }, 500)

@@ -1,4 +1,3 @@
-import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
 import { db } from '@db/index'
 import {
   areasTable,
@@ -7,11 +6,12 @@ import {
   tourStocksTable,
   toursTable,
 } from '@db/schema'
-import { and, eq, gte } from 'drizzle-orm'
+import { createRoute, OpenAPIHono, z } from '@hono/zod-openapi'
 import {
-  TourWithDestinationAndAreaSchema,
-  TourDetailResponseSchema,
-} from '../schemas/tour'
+  DestinationTourResponse,
+  DestinationToursResponse,
+} from '@trippers/shared/schemas/responses'
+import { and, eq, gte } from 'drizzle-orm'
 
 const destinations = new OpenAPIHono()
 
@@ -24,13 +24,17 @@ const getDestinationToursRoute = createRoute({
   description: '指定された目的地のツアー情報を取得します',
   request: {
     params: z.object({
-      destination_id: z.string().regex(/^\d+$/).transform(Number).openapi({
-        param: {
-          name: 'destination_id',
-          in: 'path',
-        },
-        example: '1',
-      }),
+      destination_id: z
+        .string()
+        .regex(/^\d+$/)
+        .transform(Number)
+        .openapi({
+          param: {
+            name: 'destination_id',
+            in: 'path',
+          },
+          example: '1',
+        }),
     }),
   },
   responses: {
@@ -38,9 +42,7 @@ const getDestinationToursRoute = createRoute({
       description: 'ツアー一覧の取得に成功',
       content: {
         'application/json': {
-          schema: z.object({
-            data: z.array(TourWithDestinationAndAreaSchema),
-          }),
+          schema: DestinationToursResponse,
         },
       },
     },
@@ -98,12 +100,12 @@ destinations.openapi(getDestinationToursRoute, async (c) => {
       .from(toursTable)
       .innerJoin(
         destinationsTable,
-        eq(toursTable.destinationId, destinationsTable.id)
+        eq(toursTable.destinationId, destinationsTable.id),
       )
       .innerJoin(areasTable, eq(destinationsTable.areaId, areasTable.id))
       .where(eq(destinationsTable.id, destinationId))
 
-    return c.json({ data: toursList })
+    return c.json(toursList, 200)
   } catch (error) {
     console.error('Error fetching tours:', error)
     return c.json({ error: 'Failed to fetch tours' }, 500)
@@ -119,20 +121,28 @@ const getTourDetailRoute = createRoute({
   description: '指定されたツアーの詳細情報と在庫情報を取得します',
   request: {
     params: z.object({
-      destination_id: z.string().regex(/^\d+$/).transform(Number).openapi({
-        param: {
-          name: 'destination_id',
-          in: 'path',
-        },
-        example: '1',
-      }),
-      tour_id: z.string().regex(/^\d+$/).transform(Number).openapi({
-        param: {
-          name: 'tour_id',
-          in: 'path',
-        },
-        example: '1',
-      }),
+      destination_id: z
+        .string()
+        .regex(/^\d+$/)
+        .transform(Number)
+        .openapi({
+          param: {
+            name: 'destination_id',
+            in: 'path',
+          },
+          example: '1',
+        }),
+      tour_id: z
+        .string()
+        .regex(/^\d+$/)
+        .transform(Number)
+        .openapi({
+          param: {
+            name: 'tour_id',
+            in: 'path',
+          },
+          example: '1',
+        }),
     }),
   },
   responses: {
@@ -140,9 +150,7 @@ const getTourDetailRoute = createRoute({
       description: 'ツアー詳細の取得に成功',
       content: {
         'application/json': {
-          schema: z.object({
-            data: TourDetailResponseSchema,
-          }),
+          schema: DestinationTourResponse,
         },
       },
     },
@@ -181,7 +189,8 @@ const getTourDetailRoute = createRoute({
 
 destinations.openapi(getTourDetailRoute, async (c) => {
   try {
-    const { destination_id: destinationId, tour_id: tourId } = c.req.valid('param')
+    const { destination_id: destinationId, tour_id: tourId } =
+      c.req.valid('param')
 
     // ツアー情報を取得
     const tour = await db
@@ -193,14 +202,11 @@ destinations.openapi(getTourDetailRoute, async (c) => {
       .from(toursTable)
       .innerJoin(
         destinationsTable,
-        eq(toursTable.destinationId, destinationsTable.id)
+        eq(toursTable.destinationId, destinationsTable.id),
       )
       .innerJoin(areasTable, eq(destinationsTable.areaId, areasTable.id))
       .where(
-        and(
-          eq(toursTable.id, tourId),
-          eq(destinationsTable.id, destinationId)
-        )
+        and(eq(toursTable.id, tourId), eq(destinationsTable.id, destinationId)),
       )
       .limit(1)
 
@@ -218,8 +224,11 @@ destinations.openapi(getTourDetailRoute, async (c) => {
       .where(
         and(
           eq(tourStocksTable.tourId, tourId),
-          gte(tourStocksTable.eventStartDate, today.toISOString().split('T')[0])
-        )
+          gte(
+            tourStocksTable.eventStartDate,
+            today.toISOString().split('T')[0],
+          ),
+        ),
       )
       .orderBy(tourStocksTable.eventStartDate)
 
@@ -234,13 +243,13 @@ destinations.openapi(getTourDetailRoute, async (c) => {
           .where(
             and(
               eq(reservationEventsTable.tourStockId, stock.id),
-              eq(reservationEventsTable.status, 'confirmed')
-            )
+              eq(reservationEventsTable.status, 'confirmed'),
+            ),
           )
 
         const reservedCount = reservations.reduce(
           (sum, r) => sum + r.numberOfPeople,
-          0
+          0,
         )
 
         return {
@@ -251,19 +260,20 @@ destinations.openapi(getTourDetailRoute, async (c) => {
           availableCapacity: stock.maxCapacity - reservedCount,
           createdAt: stock.createdAt.toISOString(),
         }
-      })
+      }),
     )
 
-    return c.json({
-      data: {
+    return c.json(
+      {
         tour: tour[0].tour,
         destination: tour[0].destination,
         area: tour[0].area,
         stocks: stocksWithReservations.filter(
-          (stock) => stock.availableCapacity > 0
+          (stock) => stock.availableCapacity > 0,
         ),
       },
-    })
+      200,
+    )
   } catch (error) {
     console.error('Error fetching tour details:', error)
     return c.json({ error: 'Failed to fetch tour details' }, 500)

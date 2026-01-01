@@ -4,7 +4,10 @@ import { Header } from '@/components/header'
 import { TourHeroSection } from '@/components/tour-hero-section'
 import { TourInfoSection } from '@/components/tour-info-section'
 import { TourStocksSection } from '@/components/tour-stocks-section'
-import { getTourDetail, type TourDetailResponse } from '@/lib/api/destinations'
+import {
+  type GetTourDetailResponse,
+  getTourDetail,
+} from '@/lib/api/destinations'
 
 interface TourDetailPageProps {
   params: Promise<{
@@ -16,7 +19,7 @@ interface TourDetailPageProps {
 async function getTourData(
   destinationName: string,
   tourId: string,
-): Promise<TourDetailResponse | null> {
+): Promise<GetTourDetailResponse | null> {
   try {
     // URLデコード
     const decodedDestinationName = decodeURIComponent(destinationName)
@@ -39,7 +42,7 @@ async function getTourData(
       return null
     }
 
-    const { data: allTours } = await allToursResponse.json()
+    const allTours = await allToursResponse.json()
 
     // destination nameに一致するツアーを探す
     const matchingTour = allTours.find(

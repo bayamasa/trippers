@@ -36,5 +36,7 @@ function getPool(): Pool {
   return pool;
 }
 
-export const db = drizzle({ client: getPool(), schema });
+const pool = getPool();
+export const db = drizzle({ client: pool, schema });
+export { pool };
 

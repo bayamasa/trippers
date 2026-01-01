@@ -4,7 +4,6 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "lib": ["ESNext"],
-    "types": ["bun"],
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -13,12 +12,11 @@
     "allowSyntheticDefaultImports": true,
     "isolatedModules": true,
     "noEmit": true,
+    "declaration": true,
+    "declarationMap": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@db/*": ["../db/*"],
-      "@trippers/shared": ["../shared/src"],
-      "@trippers/shared/*": ["../shared/src/*"]
+      "@trippers/shared/*": ["./src/*"]
     }
   },
   "include": ["src/**/*"],
