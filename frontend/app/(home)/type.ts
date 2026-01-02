@@ -1,4 +1,2 @@
-import type { GetToursResponse } from '@/lib/api/tours'
-
-// OpenAPI生成型から型を派生
-export type TourWithDestinationAndArea = GetToursResponse['data'][number]
+// sharedパッケージから型を再エクスポート
+export type { TourWithDestinationAndArea } from '@trippers/shared/types'

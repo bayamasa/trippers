@@ -203,12 +203,12 @@ async function main() {
   const destinations = await db
     .insert(destinationsTable)
     .values([
-      { name: "Bali", nameJp: "バリ島", imageFilename: "bali-beach-sunset.png", areaId: southeastAsiaId },
-      { name: "Paris", nameJp: "パリ", imageFilename: "eiffel-tower-paris.png", areaId: europeId },
-      { name: "Maldives", nameJp: "モルディブ", imageFilename: "maldives-overwater-bungalows.png", areaId: southeastAsiaId },
-      { name: "Kyoto", nameJp: "京都", imageFilename: "kyoto-temple-cherry-blossoms.png", areaId: asiaId },
-      { name: "Santorini", nameJp: "サントリーニ", imageFilename: "santorini-white-blue.png", areaId: europeId },
-      { name: "Dubai", nameJp: "ドバイ", imageFilename: "dubai-burj-khalifa-skyline.jpg", areaId: middleEastId },
+      { slug: "bali", nameJp: "バリ島", imageFilename: "bali-beach-sunset.png", areaId: southeastAsiaId },
+      { slug: "paris", nameJp: "パリ", imageFilename: "eiffel-tower-paris.png", areaId: europeId },
+      { slug: "maldives", nameJp: "モルディブ", imageFilename: "maldives-overwater-bungalows.png", areaId: southeastAsiaId },
+      { slug: "kyoto", nameJp: "京都", imageFilename: "kyoto-temple-cherry-blossoms.png", areaId: asiaId },
+      { slug: "santorini", nameJp: "サントリーニ", imageFilename: "santorini-white-blue.png", areaId: europeId },
+      { slug: "dubai", nameJp: "ドバイ", imageFilename: "dubai-burj-khalifa-skyline.jpg", areaId: middleEastId },
     ])
     .returning();
 
@@ -216,12 +216,12 @@ async function main() {
 
   // ツアーデータを投入
   console.log("Seeding tours...");
-  const baliId = destinations.find((d) => d.name === "Bali")?.id;
-  const parisId = destinations.find((d) => d.name === "Paris")?.id;
-  const maldivesId = destinations.find((d) => d.name === "Maldives")?.id;
-  const kyotoId = destinations.find((d) => d.name === "Kyoto")?.id;
-  const santoriniId = destinations.find((d) => d.name === "Santorini")?.id;
-  const dubaiId = destinations.find((d) => d.name === "Dubai")?.id;
+  const baliId = destinations.find((d) => d.slug === "bali")?.id;
+  const parisId = destinations.find((d) => d.slug === "paris")?.id;
+  const maldivesId = destinations.find((d) => d.slug === "maldives")?.id;
+  const kyotoId = destinations.find((d) => d.slug === "kyoto")?.id;
+  const santoriniId = destinations.find((d) => d.slug === "santorini")?.id;
+  const dubaiId = destinations.find((d) => d.slug === "dubai")?.id;
 
   if (!baliId || !parisId || !maldivesId || !kyotoId || !santoriniId || !dubaiId) {
     throw new Error("Required destinations not found");

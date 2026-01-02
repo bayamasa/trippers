@@ -1,36 +1,38 @@
-import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
 import { db } from '@db/index'
 import {
   areasTable,
   destinationsTable,
-  reservationEventsTable,
   tourStocksTable,
   toursTable,
 } from '@db/schema'
-import { and, eq, gte } from 'drizzle-orm'
+import { createRoute, OpenAPIHono, z } from '@hono/zod-openapi'
 import {
-  TourWithDestinationAndAreaSchema,
-  TourDetailResponseSchema,
-} from '../schemas/tour'
+  DestinationTourResponse,
+  DestinationToursResponse,
+} from '@trippers/shared/schemas/responses'
+import { and, eq } from 'drizzle-orm'
 
 const destinations = new OpenAPIHono()
 
-// GET /api/destinations/:destination_id/tours - 特定の目的地のツアー一覧取得
+// GET /v1/destinations/:destination_slug/tours - 特定の目的地のツアー一覧取得
 const getDestinationToursRoute = createRoute({
   method: 'get',
-  path: '/:destination_id/tours',
+  path: '/:destination_slug/tours',
   tags: ['Destinations'],
   summary: '特定の目的地のツアー一覧を取得',
   description: '指定された目的地のツアー情報を取得します',
   request: {
     params: z.object({
-      destination_id: z.string().regex(/^\d+$/).transform(Number).openapi({
-        param: {
-          name: 'destination_id',
-          in: 'path',
-        },
-        example: '1',
-      }),
+      destination_slug: z
+        .string()
+        .regex(/^[a-z0-9-]+$/)
+        .openapi({
+          param: {
+            name: 'destination_slug',
+            in: 'path',
+          },
+          example: 'bali',
+        }),
     }),
   },
   responses: {
@@ -38,9 +40,7 @@ const getDestinationToursRoute = createRoute({
       description: 'ツアー一覧の取得に成功',
       content: {
         'application/json': {
-          schema: z.object({
-            data: z.array(TourWithDestinationAndAreaSchema),
-          }),
+          schema: DestinationToursResponse,
         },
       },
     },
@@ -69,7 +69,7 @@ const getDestinationToursRoute = createRoute({
 
 destinations.openapi(getDestinationToursRoute, async (c) => {
   try {
-    const { destination_id: destinationId } = c.req.valid('param')
+    const { destination_slug: destinationSlug } = c.req.valid('param')
 
     const toursList = await db
       .select({
@@ -86,7 +86,7 @@ destinations.openapi(getDestinationToursRoute, async (c) => {
         },
         destination: {
           id: destinationsTable.id,
-          name: destinationsTable.name,
+          slug: destinationsTable.slug,
           nameJp: destinationsTable.nameJp,
           imageFilename: destinationsTable.imageFilename,
         },
@@ -94,45 +94,74 @@ destinations.openapi(getDestinationToursRoute, async (c) => {
           name: areasTable.name,
           nameJp: areasTable.nameJp,
         },
+        stock: {
+          id: tourStocksTable.id,
+          tourId: tourStocksTable.tourId,
+          eventStartDate: tourStocksTable.eventStartDate,
+          maxCapacity: tourStocksTable.maxCapacity,
+          createdAt: tourStocksTable.createdAt,
+        },
       })
       .from(toursTable)
       .innerJoin(
         destinationsTable,
-        eq(toursTable.destinationId, destinationsTable.id)
+        eq(toursTable.destinationId, destinationsTable.id),
       )
       .innerJoin(areasTable, eq(destinationsTable.areaId, areasTable.id))
-      .where(eq(destinationsTable.id, destinationId))
+      .innerJoin(tourStocksTable, eq(toursTable.id, tourStocksTable.tourId))
+      .where(eq(destinationsTable.slug, destinationSlug))
 
-    return c.json({ data: toursList })
+    const result = toursList.map((row) => ({
+      tour: row.tour,
+      destination: row.destination,
+      area: row.area,
+      stock: {
+        id: row.stock.id,
+        tourId: row.stock.tourId,
+        eventStartDate: row.stock.eventStartDate,
+        maxCapacity: row.stock.maxCapacity,
+        availableCapacity: row.stock.maxCapacity,
+        createdAt: row.stock.createdAt.toISOString(),
+      },
+    }))
+
+    return c.json(result, 200)
   } catch (error) {
     console.error('Error fetching tours:', error)
     return c.json({ error: 'Failed to fetch tours' }, 500)
   }
 })
 
-// GET /api/destinations/:destination_id/tours/:tour_id - ツアー詳細取得
-const getTourDetailRoute = createRoute({
+// GET /api/destinations/:destination_slug/tours/:tour_id - ツアー詳細取得
+const getDestinationTourRoute = createRoute({
   method: 'get',
-  path: '/:destination_id/tours/:tour_id',
+  path: '/:destination_slug/tours/:tour_id',
   tags: ['Destinations'],
   summary: 'ツアー詳細を取得',
   description: '指定されたツアーの詳細情報と在庫情報を取得します',
   request: {
     params: z.object({
-      destination_id: z.string().regex(/^\d+$/).transform(Number).openapi({
-        param: {
-          name: 'destination_id',
-          in: 'path',
-        },
-        example: '1',
-      }),
-      tour_id: z.string().regex(/^\d+$/).transform(Number).openapi({
-        param: {
-          name: 'tour_id',
-          in: 'path',
-        },
-        example: '1',
-      }),
+      destination_slug: z
+        .string()
+        .regex(/^[a-z0-9-]+$/)
+        .openapi({
+          param: {
+            name: 'destination_slug',
+            in: 'path',
+          },
+          example: 'bali',
+        }),
+      tour_id: z
+        .string()
+        .regex(/^\d+$/)
+        .transform(Number)
+        .openapi({
+          param: {
+            name: 'tour_id',
+            in: 'path',
+          },
+          example: '1',
+        }),
     }),
   },
   responses: {
@@ -140,9 +169,7 @@ const getTourDetailRoute = createRoute({
       description: 'ツアー詳細の取得に成功',
       content: {
         'application/json': {
-          schema: z.object({
-            data: TourDetailResponseSchema,
-          }),
+          schema: DestinationTourResponse,
         },
       },
     },
@@ -179,91 +206,61 @@ const getTourDetailRoute = createRoute({
   },
 })
 
-destinations.openapi(getTourDetailRoute, async (c) => {
+destinations.openapi(getDestinationTourRoute, async (c) => {
   try {
-    const { destination_id: destinationId, tour_id: tourId } = c.req.valid('param')
+    const { destination_slug: destinationSlug, tour_id: tourId } =
+      c.req.valid('param')
 
-    // ツアー情報を取得
-    const tour = await db
+    const result = await db
       .select({
         tour: toursTable,
         destination: destinationsTable,
         area: areasTable,
+        stock: {
+          id: tourStocksTable.id,
+          tourId: tourStocksTable.tourId,
+          eventStartDate: tourStocksTable.eventStartDate,
+          maxCapacity: tourStocksTable.maxCapacity,
+          createdAt: tourStocksTable.createdAt,
+        },
       })
       .from(toursTable)
       .innerJoin(
         destinationsTable,
-        eq(toursTable.destinationId, destinationsTable.id)
+        eq(toursTable.destinationId, destinationsTable.id),
       )
       .innerJoin(areasTable, eq(destinationsTable.areaId, areasTable.id))
+      .innerJoin(tourStocksTable, eq(toursTable.id, tourStocksTable.tourId))
       .where(
         and(
           eq(toursTable.id, tourId),
-          eq(destinationsTable.id, destinationId)
-        )
+          eq(destinationsTable.slug, destinationSlug),
+        ),
       )
       .limit(1)
 
-    if (tour.length === 0) {
+    if (result.length === 0) {
       return c.json({ error: 'Tour not found' }, 404)
     }
 
-    // 利用可能な在庫情報を取得（未来の日付のみ）
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
+    const row = result[0]
 
-    const stocks = await db
-      .select()
-      .from(tourStocksTable)
-      .where(
-        and(
-          eq(tourStocksTable.tourId, tourId),
-          gte(tourStocksTable.eventStartDate, today.toISOString().split('T')[0])
-        )
-      )
-      .orderBy(tourStocksTable.eventStartDate)
-
-    // 各在庫の予約数を取得
-    const stocksWithReservations = await Promise.all(
-      stocks.map(async (stock) => {
-        const reservations = await db
-          .select({
-            numberOfPeople: reservationEventsTable.numberOfPeople,
-          })
-          .from(reservationEventsTable)
-          .where(
-            and(
-              eq(reservationEventsTable.tourStockId, stock.id),
-              eq(reservationEventsTable.status, 'confirmed')
-            )
-          )
-
-        const reservedCount = reservations.reduce(
-          (sum, r) => sum + r.numberOfPeople,
-          0
-        )
-
-        return {
-          id: stock.id,
-          tourId: stock.tourId,
-          eventStartDate: stock.eventStartDate,
-          maxCapacity: stock.maxCapacity,
-          availableCapacity: stock.maxCapacity - reservedCount,
-          createdAt: stock.createdAt.toISOString(),
-        }
-      })
-    )
-
-    return c.json({
-      data: {
-        tour: tour[0].tour,
-        destination: tour[0].destination,
-        area: tour[0].area,
-        stocks: stocksWithReservations.filter(
-          (stock) => stock.availableCapacity > 0
-        ),
+    return c.json(
+      {
+        tour: row.tour,
+        destination: row.destination,
+        area: row.area,
+        stock: {
+          id: row.stock.id,
+          tourId: row.stock.tourId,
+          eventStartDate: row.stock.eventStartDate,
+          maxCapacity: row.stock.maxCapacity,
+          availableCapacity: row.stock.maxCapacity,
+          createdAt: row.stock.createdAt.toISOString(),
+        },
       },
-    })
+      200,
+    )
   } catch (error) {
     console.error('Error fetching tour details:', error)
     return c.json({ error: 'Failed to fetch tour details' }, 500)

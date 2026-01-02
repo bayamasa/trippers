@@ -47,7 +47,7 @@ export const destinationsTable = pgTable("destinations", {
   areaId: bigint("area_id", { mode: "number" })
     .notNull()
     .references(() => areasTable.id),
-  name: varchar("name", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
   nameJp: varchar("name_jp", { length: 255 }).notNull(),
   imageFilename: varchar("image_filename", { length: 255 }).notNull(),
   createdAt: timestamp("created_at", { mode: "date", precision: 6 })

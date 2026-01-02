@@ -39,9 +39,20 @@ db-down: ## Run docker-compose down db
 db-studio: ## Run Drizzle Studio
 	pnpm run db:studio
 
+# OpenAPI commands
+.PHONY: generate-types
+generate-types: ## Generate TypeScript types from OpenAPI spec
+	@echo "Generating TypeScript types from OpenAPI spec..."
+	@npx openapi-typescript http://localhost:3001/doc -o frontend/api/generated.ts
+	@echo "✅ Types generated successfully"
+
 # Development commands
 .PHONY: dev
 dev: ## Start all services (DB + Backend + Frontend)
+	@echo "Gracefully stopping processes using ports 3000 and 3001..."
+	@lsof -ti:3000 | xargs kill -15 2>/dev/null || true
+	@lsof -ti:3001 | xargs kill -15 2>/dev/null || true
+	@sleep 1
 	@echo "Starting all services..."
 	@make db
 	@echo "Waiting for database to be ready..."
@@ -54,11 +65,17 @@ dev: ## Start all services (DB + Backend + Frontend)
 
 .PHONY: dev-front
 dev-front: ## Start frontend only
+	@echo "Gracefully stopping process using port 3000..."
+	@lsof -ti:3000 | xargs kill -15 2>/dev/null || true
+	@sleep 1
 	@echo "Starting frontend..."
 	@pnpm dev:frontend
 
 .PHONY: dev-back
 dev-back: ## Start backend only (with DB)
+	@echo "Gracefully stopping process using port 3001..."
+	@lsof -ti:3001 | xargs kill -15 2>/dev/null || true
+	@sleep 1
 	@echo "Starting database..."
 	@make db
 	@echo "Waiting for database to be ready..."

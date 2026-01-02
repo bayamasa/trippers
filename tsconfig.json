@@ -13,8 +13,11 @@
         "name": "next"
       }
     ],
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@trippers/shared": ["./shared/src"],
+      "@trippers/shared/*": ["./shared/src/*"]
     },
     "target": "ES2017",
     "allowJs": true

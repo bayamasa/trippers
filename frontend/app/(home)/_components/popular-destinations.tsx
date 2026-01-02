@@ -1,13 +1,14 @@
 import { DestinationCard } from '@/app/(home)/_components/destination-card'
-import type { TourWithDestinationAndArea } from '@/app/(home)/type'
+import type { ToursResponse } from '@trippers/shared/types'
 import { getTours } from '@/lib/api/tours'
 
 export async function PopularDestinations() {
   // RSCでバックエンドAPIからツアー情報を取得
-  let tours: TourWithDestinationAndArea[] = []
+  let tours: ToursResponse = []
 
   try {
-    tours = await getTours()
+    const response = await getTours()
+    tours = response
   } catch (error) {
     console.error('Failed to fetch tours:', error)
   }
