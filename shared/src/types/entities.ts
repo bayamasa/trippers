@@ -5,7 +5,7 @@ import type {
   Tour,
   TourStock,
   TourWithDestinationAndArea,
-} from '../schemas/entities'
+} from '@trippers/shared/schemas/entities'
 
 export type Area = z.infer<typeof Area>
 export type Destination = z.infer<typeof Destination>

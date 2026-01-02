@@ -16,6 +16,7 @@
     "declarationMap": true,
     "baseUrl": ".",
     "paths": {
+      "@trippers/shared": ["./src"],
       "@trippers/shared/*": ["./src/*"]
     }
   },

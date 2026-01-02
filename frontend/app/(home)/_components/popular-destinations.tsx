@@ -1,9 +1,10 @@
 import { DestinationCard } from '@/app/(home)/_components/destination-card'
-import { type GetToursResponse, getTours } from '@/lib/api/tours'
+import type { ToursResponse } from '@trippers/shared/types'
+import { getTours } from '@/lib/api/tours'
 
 export async function PopularDestinations() {
   // RSCでバックエンドAPIからツアー情報を取得
-  let tours: GetToursResponse = []
+  let tours: ToursResponse = []
 
   try {
     const response = await getTours()

@@ -1,12 +1,4 @@
-import createClient from 'openapi-fetch'
-import type { paths } from '@/api/generated'
-
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
-
-export const client = createClient<paths>({
-  baseUrl: API_BASE_URL,
-  cache: 'no-store',
-})
 
 export class APIError extends Error {
   constructor(
@@ -17,4 +9,29 @@ export class APIError extends Error {
     super(message)
     this.name = 'APIError'
   }
+}
+
+export async function apiClient<T>(
+  path: string,
+  options?: RequestInit,
+): Promise<T> {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    ...options,
+    cache: 'no-store',
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}))
+    throw new APIError(
+      `API request failed: ${response.statusText}`,
+      response.status,
+      errorData,
+    )
+  }
+
+  return response.json()
 }

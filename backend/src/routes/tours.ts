@@ -52,7 +52,7 @@ tours.openapi(getToursRoute, async (c) => {
         },
         destination: {
           id: destinationsTable.id,
-          name: destinationsTable.name,
+          slug: destinationsTable.slug,
           nameJp: destinationsTable.nameJp,
           imageFilename: destinationsTable.imageFilename,
         },

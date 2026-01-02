@@ -11,10 +11,12 @@ interface TourInfoSectionProps {
   }
   destination: {
     id: number
-    name: string
+    slug: string
+    nameJp: string
   }
   area: {
     name: string
+    nameJp: string
   }
 }
 
@@ -34,7 +36,7 @@ export function TourInfoSection({
           <div className="mb-4 flex items-center gap-2 text-muted-foreground">
             <MapPin className="h-5 w-5" />
             <span className="text-lg">
-              {area.name} / {destination.name}
+              {area.nameJp} / {destination.nameJp}
             </span>
           </div>
           <div className="mb-6">

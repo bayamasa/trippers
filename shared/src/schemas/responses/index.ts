@@ -1,3 +1,3 @@
 export { DestinationToursResponse } from './destination-tours'
-export { DestinationTourResponse } from './tour-detail'
+export { DestinationTourResponse } from './destination-tour'
 export { ToursResponse } from './tours'

@@ -1,4 +1,5 @@
 {
+  "extends": "../tsconfig.json",
   "compilerOptions": {
     "lib": ["dom", "dom.iterable", "esnext"],
     "module": "preserve",
@@ -13,10 +14,11 @@
         "name": "next"
       }
     ],
+    "baseUrl": "..",
     "paths": {
-      "@/*": ["./*"],
-      "@trippers/shared": ["../shared/src"],
-      "@trippers/shared/*": ["../shared/src/*"]
+      "@/*": ["./frontend/*"],
+      "@trippers/shared": ["./shared/src"],
+      "@trippers/shared/*": ["./shared/src/*"]
     },
     "target": "ES2017",
     "allowJs": true

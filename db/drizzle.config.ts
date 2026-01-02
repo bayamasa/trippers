@@ -7,8 +7,8 @@ const databaseUrl =
   "postgresql://trippers:trippers@localhost:5432/trippers";
 
 export default defineConfig({
-  out: "./migrations",
-  schema: "./schema.ts",
+  out: "./db/migrations",
+  schema: "./db/schema.ts",
   dialect: "postgresql",
   dbCredentials: {
     url: databaseUrl,

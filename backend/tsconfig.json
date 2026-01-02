@@ -1,4 +1,5 @@
 {
+  "extends": "../tsconfig.json",
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
@@ -13,12 +14,12 @@
     "allowSyntheticDefaultImports": true,
     "isolatedModules": true,
     "noEmit": true,
-    "baseUrl": ".",
+    "baseUrl": "..",
     "paths": {
-      "@/*": ["./src/*"],
-      "@db/*": ["../db/*"],
-      "@trippers/shared": ["../shared/src"],
-      "@trippers/shared/*": ["../shared/src/*"]
+      "@/*": ["./backend/src/*"],
+      "@db/*": ["./db/*"],
+      "@trippers/shared": ["./shared/src"],
+      "@trippers/shared/*": ["./shared/src/*"]
     }
   },
   "include": ["src/**/*"],

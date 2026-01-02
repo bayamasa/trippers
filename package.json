@@ -15,8 +15,7 @@
     "db:generate": "drizzle-kit generate --config db/drizzle.config.ts",
     "db:migrate": "drizzle-kit migrate --config db/drizzle.config.ts",
     "db:studio": "drizzle-kit studio --config db/drizzle.config.ts",
-    "db:seed": "tsx db/seed.ts",
-    "generate:types": "openapi-typescript http://localhost:3001/doc -o frontend/api/generated.ts"
+    "db:seed": "tsx db/seed.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.1",
