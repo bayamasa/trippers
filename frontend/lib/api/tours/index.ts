@@ -1,7 +1,4 @@
-import type {
-  ToursResponse,
-  TourWithDestinationAndArea,
-} from '@trippers/shared/types'
+import type { ToursResponse } from '@trippers/shared/types'
 import { APIError, apiClient } from '../client'
 
 // 全ツアー一覧を取得

@@ -2,4 +2,7 @@ export { Area } from './area'
 export { Destination } from './destination'
 export { Tour } from './tour'
 export { TourStock } from './tour-stock'
-export { TourWithDestinationAndArea } from './tour-with-destination-and-area'
+export {
+  TourWithDestinationAndArea,
+  TourWithDestinationAndAreaAndStock,
+} from './tour-with-destination-and-area'

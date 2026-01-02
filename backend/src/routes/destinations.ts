@@ -2,7 +2,6 @@ import { db } from '@db/index'
 import {
   areasTable,
   destinationsTable,
-  reservationEventsTable,
   tourStocksTable,
   toursTable,
 } from '@db/schema'
@@ -95,6 +94,13 @@ destinations.openapi(getDestinationToursRoute, async (c) => {
           name: areasTable.name,
           nameJp: areasTable.nameJp,
         },
+        stock: {
+          id: tourStocksTable.id,
+          tourId: tourStocksTable.tourId,
+          eventStartDate: tourStocksTable.eventStartDate,
+          maxCapacity: tourStocksTable.maxCapacity,
+          createdAt: tourStocksTable.createdAt,
+        },
       })
       .from(toursTable)
       .innerJoin(
@@ -102,56 +108,24 @@ destinations.openapi(getDestinationToursRoute, async (c) => {
         eq(toursTable.destinationId, destinationsTable.id),
       )
       .innerJoin(areasTable, eq(destinationsTable.areaId, areasTable.id))
+      .innerJoin(tourStocksTable, eq(toursTable.id, tourStocksTable.tourId))
       .where(eq(destinationsTable.slug, destinationSlug))
 
-    // 各ツアーの在庫情報を取得（1ツアー = 1 stock）
-    const toursWithStock = await Promise.all(
-      toursList.map(async (tourData) => {
-        const stockResult = await db
-          .select()
-          .from(tourStocksTable)
-          .where(eq(tourStocksTable.tourId, tourData.tour.id))
-          .limit(1)
+    const result = toursList.map((row) => ({
+      tour: row.tour,
+      destination: row.destination,
+      area: row.area,
+      stock: {
+        id: row.stock.id,
+        tourId: row.stock.tourId,
+        eventStartDate: row.stock.eventStartDate,
+        maxCapacity: row.stock.maxCapacity,
+        availableCapacity: row.stock.maxCapacity,
+        createdAt: row.stock.createdAt.toISOString(),
+      },
+    }))
 
-        if (stockResult.length === 0) {
-          throw new Error(`Stock not found for tour ${tourData.tour.id}`)
-        }
-
-        const stockData = stockResult[0]
-
-        // 在庫の予約数を取得
-        const reservations = await db
-          .select({
-            numberOfPeople: reservationEventsTable.numberOfPeople,
-          })
-          .from(reservationEventsTable)
-          .where(
-            and(
-              eq(reservationEventsTable.tourStockId, stockData.id),
-              eq(reservationEventsTable.status, 'confirmed'),
-            ),
-          )
-
-        const reservedCount = reservations.reduce(
-          (sum, r) => sum + r.numberOfPeople,
-          0,
-        )
-
-        return {
-          ...tourData,
-          stock: {
-            id: stockData.id,
-            tourId: stockData.tourId,
-            eventStartDate: stockData.eventStartDate,
-            maxCapacity: stockData.maxCapacity,
-            availableCapacity: stockData.maxCapacity - reservedCount,
-            createdAt: stockData.createdAt.toISOString(),
-          },
-        }
-      }),
-    )
-
-    return c.json(toursWithStock, 200)
+    return c.json(result, 200)
   } catch (error) {
     console.error('Error fetching tours:', error)
     return c.json({ error: 'Failed to fetch tours' }, 500)
@@ -237,12 +211,18 @@ destinations.openapi(getDestinationTourRoute, async (c) => {
     const { destination_slug: destinationSlug, tour_id: tourId } =
       c.req.valid('param')
 
-    // ツアー情報を取得
-    const tour = await db
+    const result = await db
       .select({
         tour: toursTable,
         destination: destinationsTable,
         area: areasTable,
+        stock: {
+          id: tourStocksTable.id,
+          tourId: tourStocksTable.tourId,
+          eventStartDate: tourStocksTable.eventStartDate,
+          maxCapacity: tourStocksTable.maxCapacity,
+          createdAt: tourStocksTable.createdAt,
+        },
       })
       .from(toursTable)
       .innerJoin(
@@ -250,58 +230,33 @@ destinations.openapi(getDestinationTourRoute, async (c) => {
         eq(toursTable.destinationId, destinationsTable.id),
       )
       .innerJoin(areasTable, eq(destinationsTable.areaId, areasTable.id))
+      .innerJoin(tourStocksTable, eq(toursTable.id, tourStocksTable.tourId))
       .where(
-        and(eq(toursTable.id, tourId), eq(destinationsTable.slug, destinationSlug)),
+        and(
+          eq(toursTable.id, tourId),
+          eq(destinationsTable.slug, destinationSlug),
+        ),
       )
       .limit(1)
 
-    if (tour.length === 0) {
+    if (result.length === 0) {
       return c.json({ error: 'Tour not found' }, 404)
     }
 
-    // 在庫情報を取得（1ツアー = 1 stock）
-    const stockResult = await db
-      .select()
-      .from(tourStocksTable)
-      .where(eq(tourStocksTable.tourId, tourId))
-      .limit(1)
-
-    if (stockResult.length === 0) {
-      return c.json({ error: 'Stock not found' }, 404)
-    }
-
-    const stockData = stockResult[0]
-
-    // 在庫の予約数を取得
-    const reservations = await db
-      .select({
-        numberOfPeople: reservationEventsTable.numberOfPeople,
-      })
-      .from(reservationEventsTable)
-      .where(
-        and(
-          eq(reservationEventsTable.tourStockId, stockData.id),
-          eq(reservationEventsTable.status, 'confirmed'),
-        ),
-      )
-
-    const reservedCount = reservations.reduce(
-      (sum, r) => sum + r.numberOfPeople,
-      0,
-    )
+    const row = result[0]
 
     return c.json(
       {
-        tour: tour[0].tour,
-        destination: tour[0].destination,
-        area: tour[0].area,
+        tour: row.tour,
+        destination: row.destination,
+        area: row.area,
         stock: {
-          id: stockData.id,
-          tourId: stockData.tourId,
-          eventStartDate: stockData.eventStartDate,
-          maxCapacity: stockData.maxCapacity,
-          availableCapacity: stockData.maxCapacity - reservedCount,
-          createdAt: stockData.createdAt.toISOString(),
+          id: row.stock.id,
+          tourId: row.stock.tourId,
+          eventStartDate: row.stock.eventStartDate,
+          maxCapacity: row.stock.maxCapacity,
+          availableCapacity: row.stock.maxCapacity,
+          createdAt: row.stock.createdAt.toISOString(),
         },
       },
       200,
