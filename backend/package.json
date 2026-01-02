@@ -7,12 +7,14 @@
     "dev": "$HOME/.volta/bin/bun run --watch src/index.ts",
     "build": "$HOME/.volta/bin/bun build src/index.ts --outdir=dist --target=bun",
     "start": "$HOME/.volta/bin/bun run dist/index.js",
-    "lint": "biome check ."
+    "lint": "biome check .",
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
+    "test:watch": "NODE_OPTIONS='--experimental-vm-modules' jest --watch"
   },
   "dependencies": {
-    "@trippers/shared": "workspace:*",
     "@hono/swagger-ui": "^0.5.3",
     "@hono/zod-openapi": "^0.18.4",
+    "@trippers/shared": "workspace:*",
     "drizzle-orm": "^0.45.1",
     "hono": "^4.7.11",
     "pg": "^8.16.3",
@@ -21,7 +23,11 @@
   "devDependencies": {
     "@biomejs/biome": "^2.3.8",
     "@types/bun": "^1.2.5",
+    "@types/jest": "^30.0.0",
     "@types/pg": "^8.16.0",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.6",
+    "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   }
 }
