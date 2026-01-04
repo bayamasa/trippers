@@ -1,9 +1,14 @@
+'use client'
+
 import { MapPin, Menu } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { useAuth } from '@/lib/auth/context'
 
 export function Header() {
+  const { user, logout, isLoading } = useAuth()
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
@@ -40,8 +45,27 @@ export function Header() {
         </nav>
 
         <div className="hidden items-center gap-4 md:flex">
-          <Button variant="ghost">ログイン</Button>
-          <Button>予約する</Button>
+          {isLoading ? (
+            <div className="h-9 w-20 animate-pulse rounded bg-muted" />
+          ) : user ? (
+            <>
+              <span className="text-muted-foreground text-sm">
+                {user.email}
+              </span>
+              <Button variant="ghost" onClick={logout}>
+                ログアウト
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="ghost" asChild>
+                <Link href="/login">ログイン</Link>
+              </Button>
+              <Button asChild>
+                <Link href="/signup">新規登録</Link>
+              </Button>
+            </>
+          )}
         </div>
 
         <Sheet>
@@ -78,10 +102,33 @@ export function Header() {
                 お問い合わせ
               </Link>
               <div className="mt-4 flex flex-col gap-2">
-                <Button variant="outline" className="w-full bg-transparent">
-                  ログイン
-                </Button>
-                <Button className="w-full">予約する</Button>
+                {user ? (
+                  <>
+                    <p className="text-muted-foreground text-sm">
+                      {user.email}
+                    </p>
+                    <Button
+                      variant="outline"
+                      className="w-full bg-transparent"
+                      onClick={logout}
+                    >
+                      ログアウト
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      variant="outline"
+                      className="w-full bg-transparent"
+                      asChild
+                    >
+                      <Link href="/login">ログイン</Link>
+                    </Button>
+                    <Button className="w-full" asChild>
+                      <Link href="/signup">新規登録</Link>
+                    </Button>
+                  </>
+                )}
               </div>
             </nav>
           </SheetContent>

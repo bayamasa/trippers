@@ -1,5 +1,5 @@
 import type { ToursResponse } from '@trippers/shared/types'
-import { APIError, apiClient } from '../client'
+import { apiClient } from '../client'
 
 // 全ツアー一覧を取得
 export async function getTours(): Promise<ToursResponse> {

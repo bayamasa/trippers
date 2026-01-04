@@ -1,16 +1,28 @@
 import { bigint, bigserial, boolean, date, integer, pgTable, text, timestamp, varchar } from "drizzle-orm/pg-core";
 
-export const usersTable = pgTable("users", {
+// 認証情報テーブル
+export const userAuthTable = pgTable("user_auth", {
   id: bigserial("id", { mode: "number" }).primaryKey(),
   email: varchar("email", { length: 255 }).notNull().unique(),
+  passwordHash: varchar("password_hash", { length: 255 }).notNull(),
+  emailVerified: boolean("email_verified").notNull().default(false),
+  isFirstReservation: boolean("is_first_reservation").notNull().default(true),
+  emailVerificationToken: varchar("email_verification_token", { length: 255 }),
+  emailVerificationTokenExpiresAt: timestamp("email_verification_token_expires_at", { mode: "date" }),
+});
+
+// プロフィール情報テーブル
+export const userProfilesTable = pgTable("user_profiles", {
+  id: bigserial("id", { mode: "number" }).primaryKey(),
+  userId: bigint("user_id", { mode: "number" })
+    .notNull()
+    .unique()
+    .references(() => userAuthTable.id, { onDelete: "cascade" }),
   lastName: varchar("last_name", { length: 255 }).notNull(),
   firstName: varchar("first_name", { length: 255 }).notNull(),
   gender: varchar("gender", { length: 255 }).notNull(),
   dateOfBirth: date("date_of_birth").notNull(),
   location: varchar("location", { length: 255 }).notNull(),
-  createdAt: timestamp("created_at", { mode: "date", precision: 6 })
-    .notNull()
-    .defaultNow(),
 });
 
 export const areasTable = pgTable("areas", {
@@ -105,7 +117,7 @@ export const reservationEventsTable = pgTable("reservation_events", {
   id: bigserial("id", { mode: "number" }).primaryKey(),
   userId: bigint("user_id", { mode: "number" })
     .notNull()
-    .references(() => usersTable.id),
+    .references(() => userAuthTable.id),
   tourStockId: bigint("tour_stock_id", { mode: "number" })
     .notNull()
     .references(() => tourStocksTable.id),

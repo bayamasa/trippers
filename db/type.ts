@@ -6,11 +6,13 @@ import {
   tourStocksTable,
   toursDetailsTable,
   toursTable,
-  usersTable,
+  userAuthTable,
+  userProfilesTable,
 } from "./schema";
 
 // すべてのテーブルのスキーマをexport
-export const usersSchema = createSelectSchema(usersTable);
+export const userAuthSchema = createSelectSchema(userAuthTable);
+export const userProfilesSchema = createSelectSchema(userProfilesTable);
 export const areasSchema = createSelectSchema(areasTable);
 export const destinationsSchema = createSelectSchema(destinationsTable);
 export const toursSchema = createSelectSchema(toursTable);
