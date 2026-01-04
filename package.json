@@ -15,7 +15,8 @@
     "db:generate": "drizzle-kit generate --config db/drizzle.config.ts",
     "db:migrate": "drizzle-kit migrate --config db/drizzle.config.ts",
     "db:studio": "drizzle-kit studio --config db/drizzle.config.ts",
-    "db:seed": "tsx db/seed.ts"
+    "db:seed": "tsx db/seed.ts",
+    "prepare": "husky"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.1",
@@ -24,14 +25,23 @@
     "zod": "4.1.13"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.3.8",
     "@types/pg": "^8.16.0",
+    "dotenv": "^17.2.3",
     "drizzle-kit": "^0.31.8",
     "drizzle-seed": "^0.3.1",
-    "dotenv": "^17.2.3",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },
   "volta": {
     "node": "24.12.0"
+  },
+  "lint-staged": {
+    "*.{js,ts,jsx,tsx,json,css}": [
+      "biome check --write --no-errors-on-unmatched",
+      "biome format --write --no-errors-on-unmatched"
+    ]
   }
 }
