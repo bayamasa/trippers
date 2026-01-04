@@ -23,6 +23,6 @@
     }
   },
   "files": {
-    "includes": ["**", "!.next"]
+    "includes": ["**", "!.next", "!dist"]
   }
 }

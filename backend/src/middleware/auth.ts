@@ -2,7 +2,7 @@ import { db } from '@db/index'
 import { userAuthTable } from '@db/schema'
 import { eq } from 'drizzle-orm'
 import { createMiddleware } from 'hono/factory'
-import { verifyJWT } from '../utils/auth'
+import { verifyJWT } from '@/services/auth'
 
 export type AuthUser = {
   id: number

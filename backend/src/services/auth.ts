@@ -39,8 +39,17 @@ export async function verifyJWT(
   }
 }
 
-export function generateVerificationToken(): string {
-  return nanoid(32)
+export function generateVerificationToken(): {
+  raw: string
+  hashed: string
+} {
+  const raw = nanoid(32)
+  const hashed = Buffer.from(raw).toString('base64')
+  return { raw, hashed }
+}
+
+export function hashVerificationToken(raw: string): string {
+  return Buffer.from(raw).toString('base64')
 }
 
 export function getTokenExpiry(hours: number = 24): Date {

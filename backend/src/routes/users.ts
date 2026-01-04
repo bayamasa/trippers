@@ -1,8 +1,14 @@
-import { db } from '@db/index'
-import { userAuthTable, userProfilesTable } from '@db/schema'
 import { createRoute, OpenAPIHono, z } from '@hono/zod-openapi'
-import { eq } from 'drizzle-orm'
-import { authMiddleware } from '../middleware/auth'
+import { authMiddleware } from '@/middleware/auth'
+import {
+  execute as createProfileUsecase,
+  ProfileAlreadyExistsError,
+} from '@/usecases/user/createProfile'
+import { execute as getMeUsecase } from '@/usecases/user/getMe'
+import {
+  ProfileNotFoundError,
+  execute as updateProfileUsecase,
+} from '@/usecases/user/updateProfile'
 
 const users = new OpenAPIHono()
 
@@ -50,39 +56,8 @@ users.use('/me/*', authMiddleware)
 
 users.openapi(getMeRoute, async (c) => {
   const authUser = c.get('user')
-
-  const [result] = await db
-    .select({
-      auth: {
-        id: userAuthTable.id,
-        email: userAuthTable.email,
-        emailVerified: userAuthTable.emailVerified,
-      },
-      profile: {
-        lastName: userProfilesTable.lastName,
-        firstName: userProfilesTable.firstName,
-        gender: userProfilesTable.gender,
-        dateOfBirth: userProfilesTable.dateOfBirth,
-        location: userProfilesTable.location,
-      },
-    })
-    .from(userAuthTable)
-    .leftJoin(userProfilesTable, eq(userAuthTable.id, userProfilesTable.userId))
-    .where(eq(userAuthTable.id, authUser.id))
-    .limit(1)
-
-  const profileCompleted = result.profile?.lastName != null
-
-  return c.json(
-    {
-      id: result.auth.id,
-      email: result.auth.email,
-      emailVerified: result.auth.emailVerified,
-      profileCompleted,
-      profile: profileCompleted ? result.profile : null,
-    },
-    200,
-  )
+  const output = await getMeUsecase({ userId: authUser.id })
+  return c.json(output, 200)
 })
 
 // POST /v1/users/me/profile - プロフィール作成（オンボーディング用）
@@ -137,27 +112,15 @@ users.openapi(createProfileRoute, async (c) => {
   const authUser = c.get('user')
   const body = c.req.valid('json')
 
-  // 既存プロフィールチェック
-  const [existing] = await db
-    .select({ id: userProfilesTable.id })
-    .from(userProfilesTable)
-    .where(eq(userProfilesTable.userId, authUser.id))
-    .limit(1)
-
-  if (existing) {
-    return c.json({ error: 'プロフィールは既に作成されています' }, 400)
+  try {
+    await createProfileUsecase({ userId: authUser.id, ...body })
+    return c.json({ message: 'プロフィールを作成しました' }, 201)
+  } catch (error) {
+    if (error instanceof ProfileAlreadyExistsError) {
+      return c.json({ error: error.message }, 400)
+    }
+    throw error
   }
-
-  await db.insert(userProfilesTable).values({
-    userId: authUser.id,
-    lastName: body.lastName,
-    firstName: body.firstName,
-    gender: body.gender,
-    dateOfBirth: body.dateOfBirth,
-    location: body.location,
-  })
-
-  return c.json({ message: 'プロフィールを作成しました' }, 201)
 })
 
 // PATCH /v1/users/me/profile - プロフィール更新
@@ -214,23 +177,15 @@ users.openapi(updateProfileRoute, async (c) => {
   const authUser = c.get('user')
   const body = c.req.valid('json')
 
-  // プロフィール存在チェック
-  const [existing] = await db
-    .select({ id: userProfilesTable.id })
-    .from(userProfilesTable)
-    .where(eq(userProfilesTable.userId, authUser.id))
-    .limit(1)
-
-  if (!existing) {
-    return c.json({ error: 'プロフィールが見つかりません' }, 404)
+  try {
+    await updateProfileUsecase({ userId: authUser.id, ...body })
+    return c.json({ message: 'プロフィールを更新しました' }, 200)
+  } catch (error) {
+    if (error instanceof ProfileNotFoundError) {
+      return c.json({ error: error.message }, 404)
+    }
+    throw error
   }
-
-  await db
-    .update(userProfilesTable)
-    .set(body)
-    .where(eq(userProfilesTable.userId, authUser.id))
-
-  return c.json({ message: 'プロフィールを更新しました' }, 200)
 })
 
 export { users as usersRoute }
