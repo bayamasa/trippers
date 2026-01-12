@@ -2,38 +2,38 @@
 // This module exports a mutable db object that tests can configure
 
 interface MockSelectChain {
-  from: () => MockSelectChain;
-  innerJoin: () => MockSelectChain;
-  where: () => MockSelectChain | Promise<unknown[]>;
-  limit: () => Promise<unknown[]>;
+  from: () => MockSelectChain
+  innerJoin: () => MockSelectChain
+  where: () => MockSelectChain | Promise<unknown[]>
+  limit: () => Promise<unknown[]>
 }
 
 interface MockDb {
-  select: () => MockSelectChain;
-  _setMockSelect: (fn: () => MockSelectChain) => void;
+  select: () => MockSelectChain
+  _setMockSelect: (fn: () => MockSelectChain) => void
 }
 
 let mockSelectFn: () => MockSelectChain = () => ({
   from: function () {
-    return this;
+    return this
   },
   innerJoin: function () {
-    return this;
+    return this
   },
   where: function () {
-    return this;
+    return this
   },
   limit: async () => [],
-});
+})
 
 export const db: MockDb = {
   select: () => mockSelectFn(),
   _setMockSelect: (fn: () => MockSelectChain) => {
-    mockSelectFn = fn;
+    mockSelectFn = fn
   },
-};
+}
 
 export const pool = {
   query: async () => ({ rows: [] }),
   end: async () => {},
-};
+}

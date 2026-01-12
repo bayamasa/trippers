@@ -91,3 +91,18 @@ dev-db: ## Start database only
 stop: ## Stop all services
 	@echo "Stopping all services..."
 	@make down
+
+# Lint & Format commands
+.PHONY: lint
+lint: ## Run Biome lint check
+	pnpm --parallel lint
+
+.PHONY: lint-fix
+lint-fix: ## Run Biome lint check and fix
+	pnpm --filter frontend lint:fix
+	pnpm --filter backend exec biome check --write .
+
+.PHONY: format
+format: ## Run Biome format
+	pnpm --filter frontend format
+	pnpm --filter backend exec biome format --write .

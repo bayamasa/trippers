@@ -13,7 +13,8 @@ import {
   tourStocksTable,
   toursDetailsTable,
   toursTable,
-  usersTable,
+  userAuthTable,
+  userProfilesTable,
 } from "./schema";
 
 // .env.localファイルを読み込む
@@ -44,7 +45,8 @@ async function main() {
   await db.delete(hotelsTable);
   await db.delete(airlinesTable);
   await db.delete(airportsTable);
-  await db.delete(usersTable);
+  await db.delete(userProfilesTable);
+  await db.delete(userAuthTable);
   await db.delete(areasTable);
   
   // エリアデータを投入
@@ -154,39 +156,66 @@ async function main() {
 
   console.log(`Inserted ${hotels.length} hotels`);
 
-  // ユーザーデータを投入
-  console.log("Seeding users...");
-  const users = await db
-    .insert(usersTable)
+  // ユーザー認証データを投入
+  console.log("Seeding user auth...");
+  // bcrypt hash of "Password123" with cost factor 12
+  const hashedPassword = "$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4.S6bwJpUcNvNd2G";
+  const userAuth = await db
+    .insert(userAuthTable)
     .values([
       {
         email: "john.doe@example.com",
+        passwordHash: hashedPassword,
+        emailVerified: true,
+      },
+      {
+        email: "jane.smith@example.com",
+        passwordHash: hashedPassword,
+        emailVerified: true,
+      },
+      {
+        email: "alex.jones@example.com",
+        passwordHash: hashedPassword,
+        emailVerified: true,
+      },
+    ])
+    .returning();
+
+  console.log(`Inserted ${userAuth.length} user auth records`);
+
+  // ユーザープロフィールデータを投入
+  console.log("Seeding user profiles...");
+  const userProfiles = await db
+    .insert(userProfilesTable)
+    .values([
+      {
+        userId: userAuth[0].id,
         lastName: "Doe",
         firstName: "John",
-        gender: "Male",
+        gender: "male",
         dateOfBirth: "1985-05-15",
         location: "New York, USA",
       },
       {
-        email: "jane.smith@example.com",
+        userId: userAuth[1].id,
         lastName: "Smith",
         firstName: "Jane",
-        gender: "Female",
+        gender: "female",
         dateOfBirth: "1990-09-21",
         location: "Los Angeles, USA",
       },
       {
-        email: "alex.jones@example.com",
+        userId: userAuth[2].id,
         lastName: "Jones",
         firstName: "Alex",
-        gender: "Non-binary",
+        gender: "other",
         dateOfBirth: "1995-12-03",
         location: "Chicago, USA",
       },
     ])
     .returning();
 
-  console.log(`Inserted ${users.length} users`);
+  console.log(`Inserted ${userProfiles.length} user profiles`);
 
   // 目的地データを投入
   console.log("Seeding destinations...");
@@ -382,25 +411,25 @@ async function main() {
     .insert(reservationEventsTable)
     .values([
       {
-        userId: users[0].id,
+        userId: userAuth[0].id,
         tourStockId: tourStocks[0].id,
         numberOfPeople: 2,
         status: "confirmed",
       },
       {
-        userId: users[1].id,
+        userId: userAuth[1].id,
         tourStockId: tourStocks[1].id,
         numberOfPeople: 1,
         status: "confirmed",
       },
       {
-        userId: users[2].id,
+        userId: userAuth[2].id,
         tourStockId: tourStocks[2].id,
         numberOfPeople: 3,
         status: "pending",
       },
       {
-        userId: users[0].id,
+        userId: userAuth[0].id,
         tourStockId: tourStocks[3].id,
         numberOfPeople: 2,
         status: "confirmed",

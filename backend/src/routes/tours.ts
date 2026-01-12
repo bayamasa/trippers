@@ -1,8 +1,6 @@
-import { db } from '@db/index'
-import { areasTable, destinationsTable, toursTable } from '@db/schema'
 import { createRoute, OpenAPIHono, z } from '@hono/zod-openapi'
 import { ToursResponse } from '@trippers/shared/schemas/responses'
-import { eq } from 'drizzle-orm'
+import { execute as getToursUsecase } from '@/usecases/tour/getTours'
 
 const tours = new OpenAPIHono()
 
@@ -37,38 +35,8 @@ const getToursRoute = createRoute({
 
 tours.openapi(getToursRoute, async (c) => {
   try {
-    const toursList = await db
-      .select({
-        tour: {
-          id: toursTable.id,
-          title: toursTable.title,
-          minPriceTaxIncluded: toursTable.minPriceTaxIncluded,
-          departsAirportId: toursTable.departsAirportId,
-          days: toursTable.days,
-          isDirectFlight: toursTable.isDirectFlight,
-          airlinesId: toursTable.airlinesId,
-          hotelId: toursTable.hotelId,
-          thumbnailFileName: toursTable.thumbnailFileName,
-        },
-        destination: {
-          id: destinationsTable.id,
-          slug: destinationsTable.slug,
-          nameJp: destinationsTable.nameJp,
-          imageFilename: destinationsTable.imageFilename,
-        },
-        area: {
-          name: areasTable.name,
-          nameJp: areasTable.nameJp,
-        },
-      })
-      .from(toursTable)
-      .innerJoin(
-        destinationsTable,
-        eq(toursTable.destinationId, destinationsTable.id),
-      )
-      .innerJoin(areasTable, eq(destinationsTable.areaId, areasTable.id))
-
-    return c.json(toursList, 200)
+    const output = await getToursUsecase()
+    return c.json(output, 200)
   } catch (error) {
     console.error('Error fetching tours:', error)
     return c.json({ error: 'Failed to fetch tours' }, 500)

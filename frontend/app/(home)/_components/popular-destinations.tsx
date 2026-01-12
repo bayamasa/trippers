@@ -1,5 +1,5 @@
-import { DestinationCard } from '@/app/(home)/_components/destination-card'
 import type { ToursResponse } from '@trippers/shared/types'
+import { DestinationCard } from '@/app/(home)/_components/destination-card'
 import { getTours } from '@/lib/api/tours'
 
 export async function PopularDestinations() {
