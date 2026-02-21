@@ -9,7 +9,8 @@
     "start": "$HOME/.volta/bin/bun run dist/index.js",
     "lint": "biome check .",
     "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
-    "test:watch": "NODE_OPTIONS='--experimental-vm-modules' jest --watch"
+    "test:watch": "NODE_OPTIONS='--experimental-vm-modules' jest --watch",
+    "test:integration": "NODE_OPTIONS='--experimental-vm-modules' jest --config jest.config.integration.ts --runInBand --forceExit"
   },
   "dependencies": {
     "@hono/swagger-ui": "^0.5.3",
@@ -24,9 +25,11 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.8",
+    "@types/bcryptjs": "^3.0.0",
     "@types/bun": "^1.2.5",
     "@types/jest": "^30.0.0",
     "@types/pg": "^8.16.0",
+    "bcryptjs": "^3.0.3",
     "jest": "^30.2.0",
     "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",

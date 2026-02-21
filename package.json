@@ -16,7 +16,8 @@
     "db:migrate": "drizzle-kit migrate --config db/drizzle.config.ts",
     "db:studio": "drizzle-kit studio --config db/drizzle.config.ts",
     "db:seed": "tsx db/seed.ts",
-    "prepare": "husky"
+    "prepare": "husky",
+    "test:integration": "pnpm --filter backend test:integration"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.1",

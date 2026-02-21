@@ -106,3 +106,8 @@ lint-fix: ## Run Biome lint check and fix
 format: ## Run Biome format
 	pnpm --filter frontend format
 	pnpm --filter backend exec biome format --write .
+
+# Test commands
+.PHONY: endpoint-test
+endpoint-test: ## Run backend integration tests
+	pnpm test:integration
